@@ -14,4 +14,4 @@ TMSimulator is a project that simulates a Turing Machine. It provides a platform
 
 ## Contact
 
-For any questions or inquiries, please contact [your-email@example.com](mailto:your-email@example.com).
+For any questions or inquiries, please contact [delanomartin14@gmail.com](mailto:delanomartin14@gmail.com).
