@@ -1,0 +1,23 @@
+{
+  "name": "tmsimulator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tailwindcss -i ./src/input.css -o ./src/output.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DelanoMarcell/tmsimulator.git"
+  },
+  "author": "Delano",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DelanoMarcell/tmsimulator/issues"
+  },
+  "homepage": "https://github.com/DelanoMarcell/tmsimulator#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.4.4"
+  }
+}

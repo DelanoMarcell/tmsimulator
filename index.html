@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turing Machine Simulator</title>
+    
+    <link href="./src/output.css" rel="stylesheet">
+    <script src="./javascript/cytoscape.min.js"></script>
+    <script src="./javascript/lodash.js"></script>
+    <script src="./javascript/cytoscape-edgehandles.js"></script>
+    <script src="./javascript/cytoscape-cxtmenu.js"></script>
+
+ 
+ 
+
+  <style>
+      .popper-handle {
+        width: 20px;
+        height: 20px;
+        background: red;
+        border-radius: 20px;
+        z-index: 9999;
+      }
+      
+  </style>
+   
+</head>
+<body class="m-0 p-0 bg-[#faf0e6]">
+
+<header>   
+
+<nav class="bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
+    <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+      <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+          
+          <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">TM-SIMULATOR</span>
+      </a>
+      <button data-collapse-toggle="navbar-multi-level" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-multi-level" aria-expanded="false">
+          <span class="sr-only">Open main menu</span>
+          <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+          </svg>
+      </button>
+      <div class="hidden w-full md:block md:w-auto" id="navbar-multi-level">
+        <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+          <li>
+            <a href="#" class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500 dark:bg-blue-600 md:dark:bg-transparent" aria-current="page">####</a>
+          </li>
+          <li>
+              <button id="dropdownNavbarLink" data-dropdown-toggle="dropdownNavbar" class="flex items-center justify-between w-full py-2 px-3 text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:hover:bg-gray-700 md:dark:hover:bg-transparent">#####d <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+    </svg></button>
+              <!-- Dropdown menu -->
+              <div id="dropdownNavbar" class="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600 m-2">
+                  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownLargeButton">
+                    <li>
+                      <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">####d</a>
+                    </li>
+                    <li>
+                      <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">####d</a>
+                    </li>
+                  </ul>
+                  <div class="py-1">
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">####d</a>
+                  </div>
+              </div>
+          </li>
+          <li>
+            <a href="#" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">####</a>
+          </li>
+          <li>
+            <a href="#" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">####</a>
+          </li>
+          <li>
+            <a href="#" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">####</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    </header>
+    
+    
+
+
+    <!-- Buttons for showing the drawer
+    <button class="text-white bg-blue-700 hover:bg-blue-800  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" data-drawer-target="drawer-navigation" data-drawer-show="drawer-navigation" aria-controls="drawer-navigation">
+     Side menu
+    </button> -->
+
+      <!--Button for adding a state-->
+    <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="addState" > Enable state mode </button>
+ 
+    <!--Button for adding enabling and disabling draw mode-->
+    <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="drawMode" >Enable draw mode</button>
+
+    <!--Button for Fitting content-->
+
+    <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="fitContent" >Fit content</button>
+
+    
+  
+  <div class="p-2 flex flex-col">
+      <div class="flex flex-col md:flex-row">
+          <!--TM DIV -->
+          <div id="cy" class="border-2 border-[#111827] md:mr-1 md:mb-0 mb-2 border-dashed rounded-md md:w-9/12">
+      
+          </div>
+          
+          <!--Control states and tranitions div-->
+          <div class="border-2 border-[#111827] border-dashed rounded-md md:w-3/12 " id="control">
+
+
+            <p class="text-center"> This is the right hand div</p>
+            
+          </div>
+      </div>
+
+    <!-- Tape Div -->
+    <div class="border-2 border-[#111827] border-dashed rounded-md mt-5 p-1">
+        <p class="">This is a smaller div with a black border.</p>
+    </div>
+</div>
+  
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+
+       var startState = null;
+       var acceptState = null;
+       var rejectState = null;
+      
+// Cytoscape initialisation
+var cy = window.cy = cytoscape({
+  wheelSensitivity: 0.075,
+  // selectionType: 'additive',
+  boxSelectionEnabled: true, //shift, ctrl to box select
+  container: document.getElementById('cy'),
+
+  layout: {
+    name: 'grid',
+    rows: 2,
+    cols: 2
+  },
+
+  style: [
+    {
+      selector: 'node[id]',
+      style: {
+        'content': 'data(id)',
+        'text-valign': 'center',
+        'text-halign': 'center',
+        'font-size': '8px',
+        'border-width': 1,
+        'border-color': '#111827',
+      
+      }
+    },
+
+    {
+      selector: 'edge',
+      style: {
+        'curve-style': 'bezier',
+        'target-arrow-shape': 'triangle'
+      }
+    },
+
+    // some style for the extension
+
+    {
+      selector: '.eh-handle',
+      style: {
+        'background-color': '#111287',
+        'width': 12,
+        'height': 12,
+        'shape': 'ellipse',
+        'overlay-opacity': 0,
+        'border-width': 12, // makes the handle easier to hit
+        'border-opacity': 0
+      }
+    },
+
+    {
+      selector: '.eh-hover',
+      style: {
+        'background-color': '#111287'
+      }
+    },
+
+    {
+      selector: '.eh-source',
+      style: {
+        'border-width': 2,
+        'border-color': '#111287'
+        
+      }
+    },
+
+    {
+      selector: '.eh-target',
+      style: {
+        'border-width': 2,
+        'border-color': '#111287'
+      }
+    },
+
+    {
+      selector: '.eh-preview, .eh-ghost-edge',
+      style: {
+        'background-color': '#111287',
+        'line-color': '#111287',
+        'target-arrow-color': '#111287',
+        'source-arrow-color': '#111287'
+      }
+    },
+
+    {
+      selector: '.eh-ghost-edge.eh-preview-active',
+      style: {
+        'opacity': 0
+      }
+    }
+  ],
+
+  elements: {
+    nodes: [
+      { data: { id: 'q0' }},
+      { data: { id: 'q1'}},
+      
+    ],
+    edges: [
+      { data: { source: 'q0', target: 'q1' } },
+    
+    ]
+  }
+});
+
+// Cytoscape context menu edge
+cy.cxtmenu({
+        selector: 'edge',
+        menuRadius: 80,
+        commands: [
+          {
+            content: '<p class="text-xs">Edit transition</p>',
+            select: function(ele) {
+              console.log(ele.id());
+            }
+          },
+          {
+            content: '<p class="text-xs">!Direction</p>',
+            //change the direction of egde to opposite
+            select: function(ele) {
+              var source = ele.source();
+              var target = ele.target();
+              //console.log('source: ' + source.id() + ' target: ' + target.id() + ' edge: ' + ele.id());
+              ele.move({ source: target.id(), target: source.id() });
+            }
+            
+            
+          },
+          
+        ],
+        fillColor: 'rgba(0, 0, 0, 0.55)',
+        activeFillColor: 'rgb(17, 24, 39)',
+        activePadding: 20,
+        indicatorSize: 24,
+        separatorWidth: 3,
+        spotlightPadding: 4,
+        adaptativeNodeSpotlightRadius: false,
+        minSpotlightRadius: 24,
+        maxSpotlightRadius: 38,
+        openMenuEvents: 'cxttapstart taphold',
+        itemColor: 'white',
+        itemTextShadowColor: 'transparent',
+        zIndex: 9999,
+        atMouse: true,
+        outsideMenuCancel: false
+      });
+
+      // Cytoscape context menu node
+      cy.cxtmenu({
+        selector: 'node',
+        menuRadius: 50,
+        commands: [
+          {
+            content: '<p class="text-xs">Start state</p>',
+            select: function(ele) {
+             
+              if(startState != null){
+               startState.style('border-color', 'black');
+                startState.style('border-width', '1');
+               
+              }
+              startState = ele;
+              ele.style('border-color', 'green');
+              ele.style('border-width', '2');
+           
+            
+
+
+           
+
+
+            }
+          },
+          {
+            content: '<p class="text-xs">Halt(Accept)</p>',
+            //change the direction of egde to opposite
+            select: function(ele) {
+              if(acceptState != null){
+                acceptState.style('border-color', 'black');
+                acceptState.style('border-width', '1');
+              }
+              acceptState = ele;
+              ele.style('border-color', 'red');
+              ele.style('border-width', '2');
+
+            }
+            
+            
+          },
+          {
+            content: '<p class="text-xs">Halt(Reject)</p>',
+            //change the direction of egde to opposite
+            select: function(ele) {
+              if(rejectState != null){
+                rejectState.style('border-color', 'black');
+                rejectState.style('border-width', '1');
+              }
+              rejectState = ele;
+              ele.style('border-color', 'red');
+              ele.style('border-width', '2');
+
+            }
+            
+            
+          },
+          
+        ],
+        fillColor: 'rgba(0, 0, 0, 0.55)',
+        activeFillColor: 'rgb(17, 24, 39)',
+        activePadding: 20,
+        indicatorSize: 24,
+        separatorWidth: 3,
+        spotlightPadding: 4,
+        adaptativeNodeSpotlightRadius: false,
+        minSpotlightRadius: 24,
+        maxSpotlightRadius: 38,
+        openMenuEvents: 'cxttapstart taphold',
+        itemColor: 'white',
+        itemTextShadowColor: 'transparent',
+        zIndex: 9999,
+        
+        outsideMenuCancel: false
+      });
+
+
+
+//fit content button
+document.getElementById('fitContent').addEventListener('click', function() {
+  cy.fit();
+});
+
+
+
+var addStateButton = document.getElementById('addState');
+var addingState = false;
+
+addStateButton.addEventListener('click', function() {
+    addingState = !addingState;
+
+    if (addingState) {
+        // Enable node adding mode
+        cy.on('click', function(event) {
+            var newNodeId = 'q' + (cy.nodes().length + 1);
+            cy.add({
+                group: 'nodes',
+                data: { id: newNodeId },
+                position: { x: event.position.x, y: event.position.y }
+            });
+        });
+
+        addStateButton.textContent = "Disable state mode";
+    } else {
+        // Disable node adding mode
+        cy.off('click');
+        addStateButton.textContent = "Enable state mode";
+    }
+});
+
+
+
+
+        // the default values of each option are outlined below:
+let defaults = {
+  canConnect: function( sourceNode, targetNode ){
+    // whether an edge can be created between source and target
+    return true;
+  },
+  edgeParams: function( sourceNode, targetNode ){
+    // for edges between the specified source and target
+    // return element object to be passed to cy.add() for edge
+    return {};
+  },
+  hoverDelay: 150, // time spent hovering over a target node before it is considered selected
+  snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
+  snapThreshold: 15, // the target node must be less than or equal to this many pixels away from the cursor/finger
+  snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
+  noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
+  disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
+};
+
+        
+       //Drawing of edges functionality
+       var eh = cy.edgehandles(defaults);
+
+       var drawMode = false;
+       var deleteMode = false;
+
+      
+
+
+      //enable draw mode button
+      document.getElementById('drawMode').addEventListener('click', function() {
+        if(!drawMode){
+          drawMode= true;
+         
+          eh.enableDrawMode();
+            //change text of button
+          document.getElementById('drawMode').textContent = "Disable draw mode";
+
+        }else{
+          drawMode = false;
+        
+          eh.disableDrawMode();
+          //change text of button
+          document.getElementById('drawMode').textContent = "Enable draw mode";
+        }
+            
+      });
+
+
+
+
+
+  
+
+  function setHandleOn(node) {
+  
+    removeHandle(); // rm old handle
+
+
+  cy.on('mouseover', 'node', function(e) {
+    setHandleOn(e.target);
+  });
+
+  cy.on('grab', 'node', function(){
+    removeHandle();
+  });
+
+  cy.on('tap', function(e){
+    if (e.target === cy) {
+      removeHandle();
+    }
+  });
+
+  cy.on('zoom pan', function(){
+    removeHandle();
+  });
+
+  window.addEventListener('mouseup', function(e){
+    stop();
+  });
+
+  cy.on('ehstart', function(event, sourceNode){
+    started = true;
+    console.log('ehstart', sourceNode.id());
+    alert('ehstart', sourceNode.id());
+  });
+
+  cy.on('ehstop', function(){
+    started = false;
+  });
+
+}
+
+document.addEventListener('keydown', function(e) {
+  // Check if the 'Delete' key is pressed
+  if (e.key === 'Delete' || e.key === 'Del') {
+    // Check if any element is selected in Cytoscape
+    if (cy.$(':selected').length > 0) {
+      // Remove the selected elements
+      cy.$(':selected').remove();
+    }
+  }
+});
+
+
+
+
+
+});
+  
+    </script>
+</body>
+</html>
