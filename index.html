@@ -475,7 +475,25 @@
       }
 
      function deleteNode(ele){
+      // console.log("is start node"+ ele.data('start'))
+      // console.log("is accept node"+ ele.data('accept'))
+      // console.log("is reject node"+ ele.data('reject'))
+
+
+     
+      if(ele.data('start')){
+        initialState = null;
+      }
+      if(ele.data('accept')){
+        acceptState = null;
+      }
+      if(ele.data('reject')){
+        rejectState = null;
+      }
+
       ele.remove();
+      //if that node was a start state, reject state or accept state, then remove it from the global variables
+     
       console.log(transitionFunction);
      }
 
@@ -828,7 +846,7 @@
           // Check if any element is selected in Cytoscape
           if (cy.$(':selected').length > 0) {
             // Remove the selected elements
-            cy.$(':selected').remove();
+           deleteNode(cy.$(':selected'));
           }
         }
       });
@@ -888,6 +906,10 @@
   
   <div class="flex justify-center">
     <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="clearState" >Clear State Type</button>
+  </div>
+
+  <div class="flex justify-center">
+    <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="deleteStateControl" >Delete State</button>
   </div>
 </div>
 
@@ -954,6 +976,11 @@
           }
 
 
+        });
+
+        // Add event listener to the delete button
+        document.getElementById('deleteStateControl').addEventListener('click', function () {
+          deleteNode(clickedNode);
         });
 
       });
