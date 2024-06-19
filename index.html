@@ -754,7 +754,8 @@
           // return element object to be passed to cy.add() for edge
           return {};
         },
-        hoverDelay: 2000, // time spent hovering over a target node before it is considered selected
+        preview: true, // whether to show added edges preview before releasing selection
+        hoverDelay: 150, // time spent hovering over a target node before it is considered selected
         snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
         snapThreshold: 15, // the target node must be less than or equal to this many pixels away from the cursor/finger
         snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
@@ -843,10 +844,16 @@
       document.addEventListener('keydown', function (e) {
         // Check if the 'Delete' key is pressed
         if (e.key === 'Delete' || e.key === 'Del') {
-          // Check if any element is selected in Cytoscape
-          if (cy.$(':selected').length > 0) {
-            // Remove the selected elements
-           deleteNode(cy.$(':selected'));
+          //Check if node or edge selected and call the respective delete function
+          var selected = cy.$(':selected');
+          if (selected.length > 0) {
+            selected.forEach(ele => {
+              if (ele.isNode()) {
+                deleteNode(ele);
+              } else if (ele.isEdge()) {
+                deleteEdge(ele);
+              }
+            });
           }
         }
       });
@@ -1009,6 +1016,8 @@
     <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="addTransition" >Add Transition</button>
   
     <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="deleteTransitions" >Delete Transitions</button>
+
+    <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="deleteEdge" >Delete Edge</button>
   </div>
   `;
         document.getElementById('control').innerHTML = edgeDetails;
@@ -1060,7 +1069,16 @@
 
         document.getElementById('deleteTransitionsBody').innerHTML = innerHtmlDeleteTransitions;
 
-        });
+      });
+
+      // Add event listener to the delete edge button
+      document.getElementById('deleteEdge').addEventListener('click', function () {
+        deleteEdge(clickedEdge);
+
+      });
+      
+
+      
 
 
       });
