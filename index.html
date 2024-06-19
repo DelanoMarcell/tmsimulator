@@ -15,7 +15,27 @@
   <script src="./javascript/tour.js"></script>
 
 
+  <style>
+   #tape {
+  
+  overflow-x: auto;
+  white-space: nowrap;
+  
+}
 
+.tape-cell {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #000;
+  text-align: center;
+  line-height: 30px; /* vertically center the text */
+  margin: 2px;
+  box-sizing: border-box;
+}
+
+
+  </style>
 
 
 </head>
@@ -131,6 +151,7 @@
       <div class="border-2 border-[#111827] border-dashed rounded-md md:w-3/12" id="control">
 
         <p class="text-center text-lg font-bold">Control Panel</p>
+        
 
 
       </div>
@@ -138,8 +159,63 @@
     </div>
 
     <!-- Tape Div -->
-    <div class="border-2 border-[#111827] border-dashed rounded-md mt-1 p-1">
-      <p class="">This is a smaller div with a black border.</p>
+    <div id="tape" class="border-2 border-[#111827] border-dashed rounded-md mt-1 p-1">
+      <!-- <p class="">This is a smaller div that will contain the two-way infinite tape</p> -->
+      <!--Two way div for infinite tape, blocks-->
+
+      <!-- Two way div for infinite tape, blocks -->
+  <div class="tape-cell">A</div>
+  <div class="tape-cell">B</div>
+  <div class="tape-cell">C</div>
+  <div class="tape-cell">D</div>
+  <div class="tape-cell">E</div>
+  <div class="tape-cell">F</div>
+  <div class="tape-cell">B</div>
+  <div class="tape-cell">C</div>
+  <div class="tape-cell">D</div>
+  <div class="tape-cell">E</div>
+  <div class="tape-cell">F</div>
+  <div class="tape-cell">B</div>
+  <div class="tape-cell">C</div>
+  <div class="tape-cell">D</div>
+  <div class="tape-cell">E</div>
+  <div class="tape-cell">F</div>
+  <div class="tape-cell">B</div>
+  <div class="tape-cell">C</div>
+  <div class="tape-cell">D</div>
+  <div class="tape-cell">E</div>
+  <div class="tape-cell">F</div>
+  <div class="tape-cell">C</div>
+  <div class="tape-cell">D</div>
+  <div class="tape-cell">E</div>
+  <div class="tape-cell">F</div>
+  <div class="tape-cell">C</div>
+  <div class="tape-cell">D</div>
+  <div class="tape-cell">E</div>
+  <div class="tape-cell">F</div>
+  <div class="tape-cell">C</div>
+  <div class="tape-cell">D</div>
+  <div class="tape-cell">E</div>
+  <div class="tape-cell">F</div>
+  <div class="tape-cell">C</div>
+  <div class="tape-cell">D</div>
+  <div class="tape-cell">E</div>
+  <div class="tape-cell">F</div>
+  <div class="tape-cell">C</div>
+  <div class="tape-cell">D</div>
+  <div class="tape-cell">E</div>
+  <div class="tape-cell">F</div>
+  <div class="tape-cell">C</div>
+  <div class="tape-cell">D</div>
+  <div class="tape-cell">E</div>
+  <div class="tape-cell">F</div>  
+  <div class="tape-cell">C</div>
+  <div class="tape-cell">D</div>
+  <div class="tape-cell">E</div>
+
+  
+  <!-- Add more cells as needed -->
+      
     </div>
   </div>
 
@@ -1274,13 +1350,44 @@ document.getElementById('deleteTransitionsSubmit').addEventListener('click', fun
     group: "my-first-tour"
   },
 
+  //Fit content button
+  {
+    content: `This button allows you to fit the content of the canvas to the screen. Click next to continue the tour.`,
+    title: "Fit Content",
+    target: "#fitContent",
+    order: 3,
+    group: "my-first-tour"
+  },
+
   {
     content: `This is where you create transition functions for your Turing machine. You can also rename states, set the start state, accept state and reject state.To see what you can do here, click on a state to see the control panel options for that state,and click on an edge to see the control panel options for that edge. Click next to continue the tour.`,
     title: "Control panel",
     target: "#control",
-    order: 3,
+    order: 4,
     group: "my-first-tour"
   },
+
+  //Canvas tour
+  {
+    content: `This is the canvas where you can create your Turing machine. You can zoom in and out of the canvas using the mouse wheel. You can also pan the canvas by clicking and dragging. Click next to continue the tour.`,
+    title: "Canvas",
+    target: "#cy",
+    order: 5,
+    group: "my-first-tour"
+  },
+
+  //The smaller div that will show the tape
+  {
+    content: `This is the tape where you can see how the Turing machine processes input. The tape is infinite in both directions. You can now start playing with this platform on your own. Enjoy!`,
+    title: "Tape",
+    target: "#tape",
+    order: 6,
+    group: "my-first-tour"
+  },
+
+
+  
+
 
   
  
