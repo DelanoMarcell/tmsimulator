@@ -1,266 +1,523 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turing Machine Simulator</title>
-    
-    <link href="./src/output.css" rel="stylesheet">
-    <script src="./javascript/cytoscape.min.js"></script>
-    <script src="./javascript/lodash.js"></script>
-    <script src="./javascript/cytoscape-edgehandles.js"></script>
-    <script src="./javascript/cytoscape-cxtmenu.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turing Machine Simulator</title>
 
- 
- 
+  <link href="./src/output.css" rel="stylesheet">
+  <link href="./src/tour.min.css" rel="stylesheet">
+  <script src="./javascript/cytoscape.min.js"></script>
+  <script src="./javascript/lodash.js"></script>
+  <script src="./javascript/cytoscape-edgehandles.js"></script>
+  <script src="./javascript/cytoscape-cxtmenu.js"></script>
+  <script src="./javascript/tour.js"></script>
 
-  <style>
-      .popper-handle {
-        width: 20px;
-        height: 20px;
-        background: red;
-        border-radius: 20px;
-        z-index: 9999;
-      }
-      
-  </style>
-   
+
+
+
+
 </head>
+
 <body class="m-0 p-0 bg-[#faf0e6]">
 
-<header>   
+  <header>
 
-<nav class="bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
-    <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-      <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
-          
-          <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">TM-SIMULATOR</span>
-      </a>
-      <button data-collapse-toggle="navbar-multi-level" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-multi-level" aria-expanded="false">
+    <nav class="bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
+      <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+
+          <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">TM-SIMULATOR(Demo)</span>
+        </a>
+        <button data-collapse-toggle="navbar-multi-level" type="button"
+          class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+          aria-controls="navbar-multi-level" aria-expanded="false">
           <span class="sr-only">Open main menu</span>
           <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M1 1h15M1 7h15M1 13h15" />
           </svg>
-      </button>
-      <div class="hidden w-full md:block md:w-auto" id="navbar-multi-level">
-        <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-          <li>
-            <a href="#" class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500 dark:bg-blue-600 md:dark:bg-transparent" aria-current="page">####</a>
-          </li>
-          <li>
-              <button id="dropdownNavbarLink" data-dropdown-toggle="dropdownNavbar" class="flex items-center justify-between w-full py-2 px-3 text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:hover:bg-gray-700 md:dark:hover:bg-transparent">#####d <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-    </svg></button>
+        </button>
+        <div class="hidden w-full md:block md:w-auto" id="navbar-multi-level">
+          <ul
+            class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+            <li>
+              <a href="#"
+                class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500 dark:bg-blue-600 md:dark:bg-transparent"
+                aria-current="page">####</a>
+            </li>
+            <li>
+              <button id="dropdownNavbarLink" data-dropdown-toggle="dropdownNavbar"
+                class="flex items-center justify-between w-full py-2 px-3 text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:hover:bg-gray-700 md:dark:hover:bg-transparent">#####d
+                <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 10 6">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="m1 1 4 4 4-4" />
+                </svg></button>
               <!-- Dropdown menu -->
-              <div id="dropdownNavbar" class="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600 m-2">
-                  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownLargeButton">
-                    <li>
-                      <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">####d</a>
-                    </li>
-                    <li>
-                      <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">####d</a>
-                    </li>
-                  </ul>
-                  <div class="py-1">
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">####d</a>
-                  </div>
+              <div id="dropdownNavbar"
+                class="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600 m-2">
+                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownLargeButton">
+                  <li>
+                    <a href="#"
+                      class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">####d</a>
+                  </li>
+                  <li>
+                    <a href="#"
+                      class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">####d</a>
+                  </li>
+                </ul>
+                <div class="py-1">
+                  <a href="#"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">####d</a>
+                </div>
               </div>
-          </li>
-          <li>
-            <a href="#" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">####</a>
-          </li>
-          <li>
-            <a href="#" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">####</a>
-          </li>
-          <li>
-            <a href="#" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">####</a>
-          </li>
-        </ul>
+            </li>
+            <li>
+              <a href="#"
+                class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">####</a>
+            </li>
+            <li>
+              <a href="#"
+                class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">####</a>
+            </li>
+            <li>
+              <a href="#"
+                class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">####</a>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </nav>
-  
-    </header>
-    
-    
+    </nav>
+
+  </header>
 
 
-    <!-- Buttons for showing the drawer
-    <button class="text-white bg-blue-700 hover:bg-blue-800  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" data-drawer-target="drawer-navigation" data-drawer-show="drawer-navigation" aria-controls="drawer-navigation">
-     Side menu
-    </button> -->
 
-      <!--Button for adding a state-->
-    <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="addState" > Enable state mode </button>
- 
-    <!--Button for adding enabling and disabling draw mode-->
-    <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="drawMode" >Enable draw mode</button>
 
-    <!--Button for Fitting content-->
 
-    <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="fitContent" >Fit content</button>
 
-    
-  
+  <!--Button for adding a state-->
+  <button
+    class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
+    type="button" id="addState"> Enable state mode </button>
+
+  <!--Button for adding enabling and disabling draw mode-->
+  <button
+    class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
+    type="button" id="drawMode">Enable draw mode</button>
+   
+
+  <button
+    class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
+    type="button" id="fitContent">Fit content</button>
+
+  <!--Take a tour button-->
+  <button
+    class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
+    type="button" id="tour">Take a tour</button>
+
+
+
   <div class="p-2 flex flex-col">
-      <div class="flex flex-col md:flex-row">
-          <!--TM DIV -->
-          <div id="cy" class="border-2 border-[#111827] md:mr-1 md:mb-0 mb-2 border-dashed rounded-md md:w-9/12">
-      
-          </div>
-          
-          <!--Control states and tranitions div-->
-          <div class="border-2 border-[#111827] border-dashed rounded-md md:w-3/12 " id="control">
+    <div class="flex flex-col md:flex-row">
+      <!--TM DIV -->
+      <div id="cy" class="border-2 border-[#111827] md:mr-1 md:mb-0 mb-2 border-dashed rounded-md md:w-9/12">
 
-
-            <p class="text-center"> This is the right hand div</p>
-            
-          </div>
       </div>
+
+      <!--Control states and tranitions div-->
+      <div class="border-2 border-[#111827] border-dashed rounded-md md:w-3/12" id="control">
+
+        <p class="text-center text-lg font-bold">Control Panel</p>
+
+
+      </div>
+
+    </div>
 
     <!-- Tape Div -->
-    <div class="border-2 border-[#111827] border-dashed rounded-md mt-5 p-1">
-        <p class="">This is a smaller div with a black border.</p>
+    <div class="border-2 border-[#111827] border-dashed rounded-md mt-1 p-1">
+      <p class="">This is a smaller div with a black border.</p>
     </div>
-</div>
+  </div>
+
+  <!--Modal for adding transitions-->
+  <div class="relative z-10 hidden" aria-labelledby="modal-title" role="dialog" id="modalTransition" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div
+          class="relative transform overflow-hidden rounded-lg bg-[#faf0e6] text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+
+          <!-- Cross Icon for Closing -->
+          <div class="absolute top-0 right-0 pt-4 pr-4">
+            <button type="button" id="closeModalTransition"
+              class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              aria-label="Close">
+              <span class="sr-only">Close</span>
+              <!-- Cross Icon (SVG) -->
+              <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="bg-[#faf0e6] px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+            
+              <h2 class="text-lg text-center font-semibold leading-6 text-gray-900" id="modal-title">Add transition</h2>
+
+              <div class="mt-2">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end">
+
+                  <div class="flex-1 mx-1">
+                    <label for="current-symbol" class="block text-sm font-medium text-gray-700">Current symbol</label>
+                    <input type="text" name="current-symbol" id="current-symbol" autocomplete="current-symbol"
+                      class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
+                  </div>
+
+                  <div class="flex-1 mx-1">
+                    <label for="next-symbol" class="block text-sm font-medium text-gray-700">Next symbol</label>
+                    <input type="text" name="next-symbol" id="next-symbol" autocomplete="next-symbol"
+                      class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
+                  </div>
+
+                  <div class="flex-1 mx-1">
+                    <label for="direction" class="block text-sm font-medium text-gray-700">Direction</label>
+                    <input type="text" name="direction" id="direction" autocomplete="direction"
+                      class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
+                  </div>
+
+                
+
+                </div>
+                <p class="text-sm text-red-500 m-2 hidden" id="modal-alert"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Button -->
+          <div class="bg-[#faf0e6] px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button type="button" id="addTransitionSubmit"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+              Add
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
   
+   <!--Modal for deleting transitions-->
+   <div class="relative z-10 hidden" aria-labelledby="modal-title" role="dialog" id="modalTransitionDelete" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div
+          class="relative transform overflow-hidden rounded-lg bg-[#faf0e6] text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
+          <!-- Cross Icon for Closing -->
+          <div class="absolute top-0 right-0 pt-4 pr-4">
+            <button type="button" id="closeModalTransitionDelete"
+              class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              aria-label="Close">
+              <span class="sr-only">Close</span>
+              <!-- Cross Icon (SVG) -->
+              <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
 
-       var startState = null;
-       var acceptState = null;
-       var rejectState = null;
-      
-// Cytoscape initialisation
-var cy = window.cy = cytoscape({
-  wheelSensitivity: 0.075,
-  // selectionType: 'additive',
-  boxSelectionEnabled: true, //shift, ctrl to box select
-  container: document.getElementById('cy'),
+          <div class="bg-[#faf0e6] px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+            
+              <h2 class="text-lg text-center font-semibold leading-6 text-gray-900" id="deleteTransitionsTitle">Delete transitions</h2>
 
-  layout: {
-    name: 'grid',
-    rows: 2,
-    cols: 2
-  },
+              <div class="mt-2" id="deleteTransitionsBody">
+             
+              
+              </div>
 
-  style: [
-    {
-      selector: 'node[id]',
-      style: {
-        'content': 'data(id)',
-        'text-valign': 'center',
-        'text-halign': 'center',
-        'font-size': '8px',
-        'border-width': 1,
-        'border-color': '#111827',
-      
+               <!-- Delete Button -->
+          <div class="bg-[#faf0e6] px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button type="button" id="deleteTransitionsSubmit"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+              Delete
+            </button>
+
+          </div>
+          <p class="text-sm text-red-500 m-2 hidden" id="modal-alert-delete"></p>
+            </div>
+          </div>
+
+        
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+      //Define global variables for adding transitions
+      var currentEdge = null;
+
+      //define global variables for tm
+      var input = [];
+      var initialState = null;
+      var acceptState = null;
+      var rejectState = null;
+
+      var transitionFunction = {};
+
+
+
+
+      // Cytoscape initialisation
+      var cy = window.cy = cytoscape({
+        wheelSensitivity: 0.075,
+        // selectionType: 'additive',
+        boxSelectionEnabled: true, //shift, ctrl to box select
+        container: document.getElementById('cy'),
+
+        layout: {
+          name: 'grid',
+          rows: 2,
+          cols: 2
+        },
+
+        style: [
+          {
+            selector: 'node[name]',
+            style: {
+              'content': 'data(name)',
+              'text-valign': 'center',
+              'text-halign': 'center',
+              'font-size': '8px',
+              'font-weight': 'bold',
+              'border-width': 1,
+              'border-color': '#111827',
+              "text-wrap": "wrap",
+              "text-max-width": 10,
+              "width": "30px",
+              "height": "30px",
+              
+
+            }
+          },
+
+          {
+            selector: 'edge',
+            style: {
+              'width': 1.5,
+              'curve-style': 'bezier',
+              'target-arrow-shape': 'triangle',
+              'font-size': '10px',
+
+
+
+            }
+          },
+
+          // some style for the extension
+
+          {
+            selector: '.eh-handle',
+            style: {
+              'background-color': '#111287',
+              'width': 12,
+              'height': 12,
+              'shape': 'ellipse',
+              'overlay-opacity': 0,
+              'border-width': 12, // makes the handle easier to hit
+              'border-opacity': 0
+            }
+          },
+
+          {
+            selector: '.eh-hover',
+            style: {
+              'background-color': '#111287'
+            }
+          },
+
+          {
+            selector: '.eh-source',
+            style: {
+              'border-width': 2,
+              'border-color': '#111287'
+
+            }
+          },
+
+          {
+            selector: '.eh-target',
+            style: {
+              'border-width': 2,
+              'border-color': '#111287'
+            }
+          },
+
+          {
+            selector: '.eh-preview, .eh-ghost-edge',
+            style: {
+              'background-color': '#111287',
+              'line-color': '#111287',
+              'target-arrow-color': '#111287',
+              'source-arrow-color': '#111287'
+            }
+          },
+
+          {
+            selector: '.eh-ghost-edge.eh-preview-active',
+            style: {
+              'opacity': 0
+            }
+          }
+        ],
+
+        elements: {
+          nodes: [
+            // { data: { id: 'q0', name: 'q0' } },
+            // { data: { id: 'q1', name: 'q1' } },
+
+          ],
+          edges: [
+            // { data: { source: 'q0', target: 'q1' } },
+
+          ]
+        }
+      });
+
+      //Make start state
+      function makeStartState(ele) {
+        //check if some other node is already a start state
+        cy.nodes().forEach(node => {
+          if (node !== ele && node.data('start') === true) {
+            node.data('start', false);
+            node.style('border-color', 'black');
+            node.style('border-width', '1');
+
+          }
+        });
+        ele.data('start', true);
+        ele.data('accept', false);
+        ele.data('reject', false);
+        ele.style('border-color', 'green');
+        ele.style('border-width', '3');
+
+        //make the initial state variable equal to the nodes id
+        initialState = ele.id();
+
+
       }
-    },
 
-    {
-      selector: 'edge',
-      style: {
-        'curve-style': 'bezier',
-        'target-arrow-shape': 'triangle'
+      //Make accept state
+      function makeAcceptState(ele) {
+        cy.nodes().forEach(node => {
+          if (node !== ele && node.data('accept') === true) {
+            node.data('accept', false);
+            node.style('border-color', 'black');
+            node.style('border-width', '1');
+          }
+        });
+        ele.data('accept', true);
+        acceptState = ele.id();
+        ele.data('start', false);
+        ele.data('reject', false);
+        ele.style('border-color', 'red');
+        ele.style('border-width', '3');
+
+
       }
-    },
 
-    // some style for the extension
+      //Make reject state
+      function makeRejectState(ele) {
+        cy.nodes().forEach(node => {
+          if (node !== ele && node.data('reject') === true) {
+            node.data('reject', false);
+            node.style('border-color', 'black');
+            node.style('border-width', '1');
+          }
+        });
+        ele.data('reject', true);
+        rejectState = ele.id();
+        ele.data('start', false);
+        ele.data('accept', false);
+        ele.style('border-color', 'red');
+        ele.style('border-width', '3');
 
-    {
-      selector: '.eh-handle',
-      style: {
-        'background-color': '#111287',
-        'width': 12,
-        'height': 12,
-        'shape': 'ellipse',
-        'overlay-opacity': 0,
-        'border-width': 12, // makes the handle easier to hit
-        'border-opacity': 0
+
       }
-    },
 
-    {
-      selector: '.eh-hover',
-      style: {
-        'background-color': '#111287'
-      }
-    },
-
-    {
-      selector: '.eh-source',
-      style: {
-        'border-width': 2,
-        'border-color': '#111287'
+      function deleteEdge(ele) {
+        ele.remove();
+        
+        //delete the transition from the transition function, but all the transitions that have the same source and symbol
+        var transitions = ele.style('label').split(',');
+        //delete all transitions, not just the 0th one
+        for(var i = 0; i < transitions.length; i++){
+          var transitionId = ele.source().id()+","+transitions[i].split('(')[1];
+          delete transitionFunction[transitionId];
+        }
+        console.log(transitionFunction);
         
       }
-    },
 
-    {
-      selector: '.eh-target',
-      style: {
-        'border-width': 2,
-        'border-color': '#111287'
-      }
-    },
+     function deleteNode(ele){
+      ele.remove();
+      console.log(transitionFunction);
+     }
 
-    {
-      selector: '.eh-preview, .eh-ghost-edge',
-      style: {
-        'background-color': '#111287',
-        'line-color': '#111287',
-        'target-arrow-color': '#111287',
-        'source-arrow-color': '#111287'
-      }
-    },
-
-    {
-      selector: '.eh-ghost-edge.eh-preview-active',
-      style: {
-        'opacity': 0
-      }
-    }
-  ],
-
-  elements: {
-    nodes: [
-      { data: { id: 'q0' }},
-      { data: { id: 'q1'}},
+     //check that at any given time that an edge goes away, the transition function is updated
+      cy.on('remove', 'edge', function (e) {
+        var ele = e.target;
+        
+        //delete the transition from the transition function, but all the transitions that have the same source and symbol
+        var transitions = ele.style('label').split(',');
+        //delete all transitions, not just the 0th one
+        for(var i = 0; i < transitions.length; i++){
+          var transitionId = ele
+          .source()
+          .id()+","+transitions[i].split('(')[1];
+          delete transitionFunction[transitionId];
+        }
+        console.log(transitionFunction);
+        
+      });
       
-    ],
-    edges: [
-      { data: { source: 'q0', target: 'q1' } },
-    
-    ]
-  }
-});
 
-// Cytoscape context menu edge
-cy.cxtmenu({
+      // Cytoscape context menu edge
+      cy.cxtmenu({
         selector: 'edge',
         menuRadius: 80,
         commands: [
           {
             content: '<p class="text-xs">Edit transition</p>',
-            select: function(ele) {
+            select: function (ele) {
               console.log(ele.id());
             }
           },
           {
-            content: '<p class="text-xs">!Direction</p>',
+            content: '<p class="text-xs">Delete edge</p>',
             //change the direction of egde to opposite
-            select: function(ele) {
-              var source = ele.source();
-              var target = ele.target();
-              //console.log('source: ' + source.id() + ' target: ' + target.id() + ' edge: ' + ele.id());
-              ele.move({ source: target.id(), target: source.id() });
+            select: function (ele) {
+             deleteEdge(ele);
             }
-            
-            
+
+
           },
-          
+
         ],
         fillColor: 'rgba(0, 0, 0, 0.55)',
         activeFillColor: 'rgb(17, 24, 39)',
@@ -285,59 +542,35 @@ cy.cxtmenu({
         menuRadius: 50,
         commands: [
           {
-            content: '<p class="text-xs">Start state</p>',
-            select: function(ele) {
-             
-              if(startState != null){
-               startState.style('border-color', 'black');
-                startState.style('border-width', '1');
-               
-              }
-              startState = ele;
-              ele.style('border-color', 'green');
-              ele.style('border-width', '2');
-           
+            content: '<p class="text-xs">Delete node</p>',
+            select: function (ele) {
             
-
-
-           
-
+              deleteNode(ele);
 
             }
           },
           {
-            content: '<p class="text-xs">Halt(Accept)</p>',
-            //change the direction of egde to opposite
-            select: function(ele) {
-              if(acceptState != null){
-                acceptState.style('border-color', 'black');
-                acceptState.style('border-width', '1');
-              }
-              acceptState = ele;
-              ele.style('border-color', 'red');
-              ele.style('border-width', '2');
+            content: '<p class="text-xs">Clear state</p>',
+           
+            select: function (ele) {
 
-            }
-            
-            
-          },
-          {
-            content: '<p class="text-xs">Halt(Reject)</p>',
-            //change the direction of egde to opposite
-            select: function(ele) {
-              if(rejectState != null){
-                rejectState.style('border-color', 'black');
-                rejectState.style('border-width', '1');
-              }
-              rejectState = ele;
-              ele.style('border-color', 'red');
-              ele.style('border-width', '2');
+              ele.data('start', false);
+              ele.data('accept', false);
+              ele.data('reject', false);
+              ele.style('border-color', 'black');
+              ele.style('border-width', '1');
 
-            }
-            
-            
+              document.getElementById('start-state').checked = false;
+              document.getElementById('accept-state').checked = false;
+              document.getElementById('reject-state').checked = false;
+
+
+
+            },
+
           },
           
+
         ],
         fillColor: 'rgba(0, 0, 0, 0.55)',
         activeFillColor: 'rgb(17, 24, 39)',
@@ -352,158 +585,679 @@ cy.cxtmenu({
         itemColor: 'white',
         itemTextShadowColor: 'transparent',
         zIndex: 9999,
-        
+
+        outsideMenuCancel: false,
+
+
+      });
+
+
+
+      cy.cxtmenu({
+        selector: 'core',
+        menuRadius: 70,
+        commands: [
+          {
+            content: '<p class="text-xs">Draw mode</p>',
+            select: function (ele) {
+
+              if (drawMode) {
+                drawMode = false;
+                eh.disableDrawMode();
+                document.getElementById('drawMode').textContent = "Enable draw mode";
+
+
+              } else {
+                drawMode = true;
+                eh.enableDrawMode();
+                document.getElementById('drawMode').textContent = "Disable draw mode";
+              }
+
+            }
+          },
+          {
+            content: '<p class="text-xs">State mode</p>',
+            //change the direction of egde to opposite
+            select: function (ele) {
+
+              addingState = !addingState;
+
+              if (addingState) {
+                // Enable node adding mode
+                cy.on('click', addNodeHandler);
+
+                addStateButton.textContent = "Disable state mode";
+              } else {
+                // Disable node adding mode
+                cy.off('click', addNodeHandler);
+                addStateButton.textContent = "Enable state mode";
+              }
+
+            }
+
+          },
+
+
+        ],
+        fillColor: 'rgba(0, 0, 0, 0.55)',
+        activeFillColor: 'rgb(17, 24, 39)',
+        activePadding: 20,
+        indicatorSize: 24,
+        separatorWidth: 3,
+        spotlightPadding: 4,
+        adaptativeNodeSpotlightRadius: false,
+        minSpotlightRadius: 24,
+        maxSpotlightRadius: 38,
+        openMenuEvents: 'cxttapstart taphold',
+        itemColor: 'white',
+        itemTextShadowColor: 'transparent',
+        zIndex: 9999,
+
         outsideMenuCancel: false
       });
 
 
 
-//fit content button
-document.getElementById('fitContent').addEventListener('click', function() {
-  cy.fit();
-});
+
+      //fit content button
+      document.getElementById('fitContent').addEventListener('click', function () {
+        cy.fit();
+      });
 
 
 
-var addStateButton = document.getElementById('addState');
-var addingState = false;
+      //Add state button
+      var addStateButton = document.getElementById('addState');
+      var addingState = false;
 
-addStateButton.addEventListener('click', function() {
-    addingState = !addingState;
+      addStateButton.addEventListener('click', function () {
+        addingState = !addingState;
 
-    if (addingState) {
-        // Enable node adding mode
-        cy.on('click', function(event) {
-            var newNodeId = 'q' + (cy.nodes().length + 1);
-            cy.add({
-                group: 'nodes',
-                data: { id: newNodeId },
-                position: { x: event.position.x, y: event.position.y }
-            });
-        });
+        if (addingState) {
+          // Enable node adding mode
+          cy.on('click', addNodeHandler)
+          addStateButton.textContent = "Disable state mode";
+        } else {
+          // Disable node adding mode
+          cy.off('click', addNodeHandler);
+          addStateButton.textContent = "Enable state mode";
+        }
+      });
 
-        addStateButton.textContent = "Disable state mode";
-    } else {
-        // Disable node adding mode
-        cy.off('click');
-        addStateButton.textContent = "Enable state mode";
-    }
-});
+      // Generate a unique ID for a new node
+      function generateUniqueId() {
+        let i = 0;
+        while (cy.$(`#q${i}`).length !== 0) {
+          i++;
+        }
+        return 'q' + i;
+      }
+
+      //handler for adding states to the graph
+      function addNodeHandler(event) {
+        // Check if the click event target is the background (core) and not a node
+        if (event.target === cy) {
+          var newNodeId = generateUniqueId();
+          cy.add({
+            group: 'nodes',
+            data: { id: newNodeId, name: newNodeId },
+            position: { x: event.position.x, y: event.position.y },
+            style : {
+              'text-valign': 'center',
+              'text-halign': 'center',
+              'font-size': '8px',
+              'font-weight': 'bold',
+              'border-width': 1,
+              'border-color': '#111827',
+              "text-wrap": "wrap",
+              "text-max-width": 10,
+              "width": "30px",
+              "height": "30px",
+            }
+          });
+        }
+      }
 
 
 
+      // the default values of each option are outlined below:
+      let defaults = {
+        canConnect: function (sourceNode, targetNode) {
+          // Check if there is an existing edge from sourceNode to targetNode
+          let existingEdgeFromSourceToTarget = sourceNode.edgesTo(targetNode).length > 0;
 
-        // the default values of each option are outlined below:
-let defaults = {
-  canConnect: function( sourceNode, targetNode ){
-    // whether an edge can be created between source and target
-    return true;
-  },
-  edgeParams: function( sourceNode, targetNode ){
-    // for edges between the specified source and target
-    // return element object to be passed to cy.add() for edge
-    return {};
-  },
-  hoverDelay: 150, // time spent hovering over a target node before it is considered selected
-  snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
-  snapThreshold: 15, // the target node must be less than or equal to this many pixels away from the cursor/finger
-  snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
-  noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
-  disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
-};
+          // Allow connection if no edge exists from sourceNode to targetNode
+          return !existingEdgeFromSourceToTarget;
+        },
 
-        
-       //Drawing of edges functionality
-       var eh = cy.edgehandles(defaults);
 
-       var drawMode = false;
-       var deleteMode = false;
+        edgeParams: function (sourceNode, targetNode) {
+          // for edges between the specified source and target
+          // return element object to be passed to cy.add() for edge
+          return {};
+        },
+        hoverDelay: 2000, // time spent hovering over a target node before it is considered selected
+        snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
+        snapThreshold: 15, // the target node must be less than or equal to this many pixels away from the cursor/finger
+        snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
+        noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
+        disableBrowserGestures: true, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
+        snapDelay: 2000,
 
-      
+
+      };
+
+
+      //Drawing of edges functionality
+      var eh = cy.edgehandles(defaults);
+
+      var drawMode = false;
+      var deleteMode = false;
+
+
 
 
       //enable draw mode button
-      document.getElementById('drawMode').addEventListener('click', function() {
-        if(!drawMode){
-          drawMode= true;
-         
+      document.getElementById('drawMode').addEventListener('click', function () {
+        if (!drawMode) {
+          drawMode = true;
+
           eh.enableDrawMode();
-            //change text of button
+          //change text of button
           document.getElementById('drawMode').textContent = "Disable draw mode";
 
-        }else{
+        } else {
           drawMode = false;
-        
+
           eh.disableDrawMode();
           //change text of button
           document.getElementById('drawMode').textContent = "Enable draw mode";
         }
-            
+
       });
 
 
 
 
 
+
+
+      function setHandleOn(node) {
+
+        removeHandle(); // rm old handle
+
+
+        cy.on('mouseover', 'node', function (e) {
+          setHandleOn(e.target);
+        });
+
+        cy.on('grab', 'node', function () {
+          removeHandle();
+        });
+
+        cy.on('tap', function (e) {
+          if (e.target === cy) {
+            removeHandle();
+          }
+        });
+
+        cy.on('zoom pan', function () {
+          removeHandle();
+        });
+
+        window.addEventListener('mouseup', function (e) {
+          stop();
+        });
+
+        cy.on('ehstart', function (event, sourceNode) {
+          started = true;
+          console.log('ehstart', sourceNode.id());
+          alert('ehstart', sourceNode.id());
+        });
+
+        cy.on('ehstop', function () {
+          started = false;
+        });
+
+      }
+
+
+      document.addEventListener('keydown', function (e) {
+        // Check if the 'Delete' key is pressed
+        if (e.key === 'Delete' || e.key === 'Del') {
+          // Check if any element is selected in Cytoscape
+          if (cy.$(':selected').length > 0) {
+            // Remove the selected elements
+            cy.$(':selected').remove();
+          }
+        }
+      });
+
+
+      //Control panel for the nodes
+      cy.on('click', 'node', function (e) {
+        var clickedNode = e.target;
+
+      
+        // //check the zoom level of the canvas
+        // alert(cy.zoom());
+        
+
+
+       
+
+
+
+        var startBool = clickedNode.data('start');
+        var acceptBool = clickedNode.data('accept');
+        var rejectBool = clickedNode.data('reject');
+
+        // alert(clickedNode.data('name'))
+
+        var nodeDetails = `
+  <div class="p-2 t" id="${clickedNode.id()}">
+    <p class="text-lg text-center font-bold text-black">State panel</p>
+    <label for="stateName" class="block text-sm font-bold text-black">State:</label>
+    <input type="text" id="stateName" name="stateName" class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-300 bg-[white] rounded-sm text-black  font-bold" value="${clickedNode.data("name")}">
   
+  <fieldset class="mt-4">
+    <legend class="sr-only">State Type</legend>
 
-  function setHandleOn(node) {
+    <div class="flex items-center mb-4">
+      <input id="start-state" type="radio" name="stateType" value="start" class="w-4 h-4 m-2 border-gray-300 focus:ring-2 focus:ring-blue-300 ${startBool ? 'selected' : ''}" ${startBool ? 'checked' : ''}>
+      <label for="start-state" class="block ms-2 text-sm font-medium text-black">
+        Start State
+      </label>
+    </div>
+
+    <div class="flex items-center mb-4">
+      <input id="accept-state" type="radio" name="stateType" value="accept" class="w-4 h-4 m-2 border-gray-300 focus:ring-2 focus:ring-blue-300 ${acceptBool ? 'selected' : ''}" ${acceptBool ? 'checked' : ''}>
+      <label for="accept-state" class="block ms-2 text-sm font-medium text-black">
+        Accept State
+      </label>
+    </div>
+
+    <div class="flex items-center mb-4">
+      <input id="reject-state" type="radio" name="stateType" value="reject" class="w-4 h-4 m-2 border-gray-300 focus:ring-2 focus:ring-blue-300 ${rejectBool ? 'selected' : ''}" ${rejectBool ? 'checked' : ''}>
+      <label for="reject-state" class="block ms-2 text-sm font-medium text-black">
+        Reject State
+      </label>
+    </div>
+
+  </fieldset>
   
-    removeHandle(); // rm old handle
+  <div class="flex justify-center">
+    <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="clearState" >Clear State Type</button>
+  </div>
+</div>
+
+`;
 
 
-  cy.on('mouseover', 'node', function(e) {
-    setHandleOn(e.target);
-  });
+        document.getElementById('control').innerHTML = nodeDetails;
 
-  cy.on('grab', 'node', function(){
-    removeHandle();
-  });
+        // Add event listeners to the radio buttons
+        document.getElementById('start-state').addEventListener('change', function () {
+          makeStartState(clickedNode);
+          if(clickedNode.id() === rejectState){
+            rejectState = null;
+          }else if(clickedNode.id() === acceptState){
+            acceptState = null;
+          }
 
-  cy.on('tap', function(e){
-    if (e.target === cy) {
-      removeHandle();
-    }
-  });
+        });
 
-  cy.on('zoom pan', function(){
-    removeHandle();
-  });
+        document.getElementById('accept-state').addEventListener('change', function () {
+          makeAcceptState(clickedNode);
+          if(clickedNode.id() === initialState){
+            initialState = null;
+          }else if(clickedNode.id() === rejectState){
+            rejectState = null;
+          }
+        });
 
-  window.addEventListener('mouseup', function(e){
-    stop();
-  });
-
-  cy.on('ehstart', function(event, sourceNode){
-    started = true;
-    console.log('ehstart', sourceNode.id());
-    alert('ehstart', sourceNode.id());
-  });
-
-  cy.on('ehstop', function(){
-    started = false;
-  });
-
-}
+        document.getElementById('reject-state').addEventListener('change', function () {
+          makeRejectState(clickedNode);
+          if(clickedNode.id() === initialState){
+            initialState = null;
+          }else if(clickedNode.id() === acceptState){
+            acceptState = null;
+          }
+        });
 
 
-document.addEventListener('keydown', function(e) {
-  // Check if the 'Delete' key is pressed
-  if (e.key === 'Delete' || e.key === 'Del') {
-    // Check if any element is selected in Cytoscape
-    if (cy.$(':selected').length > 0) {
-      // Remove the selected elements
-      cy.$(':selected').remove();
-    }
+        // Add event listener to the input field and change the node id when the input field changes
+        document.getElementById('stateName').addEventListener('input', function () {
+          clickedNode.data('name', this.value);
+          clickedNode.style('content', this.value);
+
+        });
+
+        // Add event listener to the clear button
+        document.getElementById('clearState').addEventListener('click', function () {
+          clickedNode.data('start', false);
+          clickedNode.data('accept', false);
+          clickedNode.data('reject', false);
+          clickedNode.style('border-color', 'black');
+          clickedNode.style('border-width', '1');
+          document.getElementById('start-state').checked = false;
+          document.getElementById('accept-state').checked = false;
+          document.getElementById('reject-state').checked = false;
+         
+          //Update the global variables
+         if(clickedNode.id() === initialState){
+          initialState = null;
+         }else if(clickedNode.id() === acceptState){
+          acceptState = null;
+          }else if(clickedNode.id() === rejectState){
+          rejectState = null;
+          }
+
+
+        });
+
+      });
+
+
+      //Control panel for the edges
+      cy.on('click', 'edge', function (e) {
+        var clickedEdge = e.target;
+        // alert(clickedEdge.id())
+        // alert(clickedEdge.source().data('name'))
+        // alert(clickedEdge.target().data('name'))
+
+        currentEdge = clickedEdge;
+
+        //add varEdgedetails that contains a reverse edge button, contains the source and target nodes, contains an add transition button that opens a modal with a form for adding a transition
+        var edgeDetails = `
+  <div class="p-2" id="${clickedEdge.id()}">
+   
+    
+
+    <p class="text-lg text-center font-bold text-black">Edge panel</p>
+  
+  
+   
+  
+    <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="addTransition" >Add Transition</button>
+  
+    <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="deleteTransitions" >Delete Transitions</button>
+  </div>
+  `;
+        document.getElementById('control').innerHTML = edgeDetails;
+
+
+        
+
+        // Add event listener to the add transition button
+        document.getElementById('addTransition').addEventListener('click', function () {
+          document.getElementById('modalTransition').classList.remove('hidden');
+        });
+
+        // Add event listener to the delete transition button
+        document.getElementById('deleteTransitions').addEventListener('click', function () {
+    
+          document.getElementById('modalTransitionDelete').classList.remove('hidden');
+          const sourceState = clickedEdge.source().data("name");
+          const targetState = clickedEdge.target().data("name");
+          const modalTitle = `Transitions: "${sourceState}" to "${targetState}"`;
+          deleteTransitionsTitle.textContent = modalTitle;
+
+          //get all transitions stored in the edge
+          var transitions = currentEdge.data('transitions');
+          // alert(transitions);
+          console.log(transitions);
+
+          var innerHtmlDeleteTransitions = '';
+
+          if(transitions === undefined || transitions.length === 0){
+            document.getElementById('deleteTransitionsBody').innerHTML = `<p class="text-center text-lg font-bold">No transitions to delete</p>`;
+            document.getElementById('deleteTransitionsSubmit').classList.add('hidden');
+            return;
+          }
+
+       
+          
+
+          document.getElementById('deleteTransitionsSubmit').classList.remove('hidden');
+
+          for(var i = 0; i < transitions.length; i++){
+            var transition = transitions[i];
+            innerHtmlDeleteTransitions += `
+      <div class="transition-item">
+        <input type="checkbox" id="transition${i}" data-index="${i}">
+        <label for="transition${i}">(${transition.currentSymbol}, ${transition.nextSymbol}, ${transition.direction})</label>
+      </div>
+    `;
+      }
+
+        document.getElementById('deleteTransitionsBody').innerHTML = innerHtmlDeleteTransitions;
+
+        });
+
+
+      });
+
+
+
+
+
+      //Make it so that no node being selected means that the control div is empty
+      cy.on('click', function (e) {
+        if (e.target === cy) {
+          document.getElementById('control').innerHTML = `<p class="text-center text-lg font-bold">Control Panel</p>`;
+        console.log("Current state of transition function", transitionFunction);
+        console.log("Current state of initial state", initialState);
+        console.log("Current state of accept state", acceptState);
+        console.log("Current state of reject state", rejectState);
+        }
+       
+
+      });
+
+      // Handle delete transitions button
+document.getElementById('deleteTransitionsSubmit').addEventListener('click', function () {
+  
+  var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+  if(checkboxes.length === 0){
+   //Hide the delete button
+    document.getElementById('deleteTransitionsSubmit').classList.add('hidden');
+    return;
   }
-});
 
-
-
-
-
-});
   
-    </script>
+
+
+
+
+  var checked = Array.from(checkboxes).filter(checkbox => checkbox.checked);
+  
+  if (checked.length === 0) {
+    document.getElementById('modal-alert-delete').classList.remove('hidden');
+    document.getElementById('modal-alert-delete').textContent = 'Please select at least one transition to delete';
+    return;
+  }
+
+  document.getElementById('modal-alert-delete').classList.add('hidden');
+
+  // Get the indices of the transitions to delete
+  var transitionsToDelete = checked.map(checkbox => parseInt(checkbox.getAttribute('data-index')));
+
+  // Get the transitions from the edge
+  var transitions = currentEdge.data('transitions');
+
+  // Sort the indices in descending order to avoid index shifting issues
+  transitionsToDelete.sort((a, b) => b - a).forEach(index => {
+    // Update the transition function
+    var transitionId = currentEdge.source().id() + "," + transitions[index].currentSymbol;
+    delete transitionFunction[transitionId];
+
+    // Remove the transition
+    transitions.splice(index, 1);
+  });
+
+  // Update the transitions in the edge data
+  currentEdge.data('transitions', transitions);
+
+  console.log("transitions", transitions);
+  console.log("transitionFunction", transitionFunction);
+
+  // Update the edge label
+  var label = transitions.map(t => `(${t.currentSymbol}, ${t.nextSymbol}, ${t.direction})`).join(', ');
+  currentEdge.style('label', label);
+
+  // Close the modal
+  document.getElementById('modalTransitionDelete').classList.add('hidden');
+});
+
+
+
+
+      //Handle modle closing button
+      document.getElementById('closeModalTransition').addEventListener('click', function () {
+        document.getElementById('modalTransition').classList.add('hidden');
+
+        //clear form
+        document.getElementById('current-symbol').value = '';
+        document.getElementById('next-symbol').value = '';
+        document.getElementById('direction').value = '';
+
+        //Remove alert
+        document.getElementById('modal-alert').classList.add('hidden');
+      });
+
+      //Handle modle closing button delete transitions
+      document.getElementById('closeModalTransitionDelete').addEventListener('click', function () {
+        document.getElementById('modalTransitionDelete').classList.add('hidden');
+
+        //Remove alert
+        document.getElementById('modal-alert-delete').classList.add('hidden');
+
+       
+      });
+
+      //Handle transition submit form
+      document.getElementById('addTransitionSubmit').addEventListener('click', function () {
+        var currentSymbol = document.getElementById('current-symbol').value;
+        var nextSymbol = document.getElementById('next-symbol').value;
+        var direction = document.getElementById('direction').value;
+
+        if(currentSymbol === '' || nextSymbol === '' || direction === ''){
+          document.getElementById('modal-alert').classList.remove('hidden');
+          document.getElementById('modal-alert').textContent = 'Please fill in all fields';
+          return;
+        }
+
+        document.getElementById('modal-alert').classList.add('hidden');
+
+
+       
+        
+
+        //Check if direction is valid
+        if(direction !== 'L' && direction !== 'R'){
+          document.getElementById('modal-alert').classList.remove('hidden');
+          document.getElementById('modal-alert').textContent = 'Direction must be L or R';
+          return;
+        }
+
+        //Check if transition doesnt already exist in transition function
+        transitionId = currentEdge.source().id()+","+currentSymbol;
+
+        if(transitionFunction[transitionId] != undefined){
+          document.getElementById('modal-alert').classList.remove('hidden');
+          document.getElementById('modal-alert').textContent = `Transition already exists from state "${currentEdge.source().data("name")}" with symbol "${currentSymbol}" `;
+          return;
+        }
+
+         // Assuming currentEdge is the edge being edited
+         if (!currentEdge.data('transitions')) {
+          currentEdge.data('transitions', []);
+        }
+
+        
+
+        // Add the new transition to the edge's transition array
+        var transitions = currentEdge.data('transitions');
+
+
+
+        transitions.push({ currentSymbol: currentSymbol, nextSymbol: nextSymbol, direction: direction });
+
+        currentEdge.data('transitions', transitions);
+
+        // Update the edge label to show all transitions
+        var label = transitions.map(t => `(${t.currentSymbol}, ${t.nextSymbol}, ${t.direction})`).join(', ');
+        currentEdge.style('label', label);
+
+        //clear the form
+        document.getElementById('current-symbol').value = '';
+        document.getElementById('next-symbol').value = '';
+        document.getElementById('direction').value = '';
+      
+        //add the transition to the transition function
+        // currentState, currentSymbol = [nextState, nextSymbol, direction]
+        var transitionId = currentEdge.source().id()+","+currentSymbol;
+        transitionFunction[transitionId] = [currentEdge.target().id(), nextSymbol, direction];
+
+        console.log(transitionFunction);
+       
+        
+
+        //close the modal
+        document.getElementById('modalTransition').classList.add('hidden');
+
+      });
+
+    
+//create states tour
+    const steps = [
+      {
+    content: `<img src='./assets/stateModeGif.gif' alt='Tour Gif'' /><br/> Welcome to the tour guide! In order to create a state, enable state mode by clicking on the highlighted button. Then click anywhere on the canvas to create a state. For as long as state mode is enabled, you can create as many states as you want. Click next to continue the tour.`, 
+    title: "State Mode",
+    target: "#addState",
+    order: 1,
+    group: "my-first-tour"
+  },
+
+  {
+    content: `<img src='./assets/stateModeGif2.gif' alt='Tour Gif'' /><br/> Draw mode allows you to create transitions between states. You can enable draw mode by clicking on the highlighted button. Then click on a state and drag to another state to create a transition. You are able to create self loops by dragging from a state to itself.`,
+    title: "Draw Mode",
+    target: "#drawMode",
+    order: 2,
+    group: "my-first-tour"
+  },
+
+  {
+    content: `This is where you create transition functions for your Turing machine. You can also rename states, set the start state, accept state and reject state.To see what you can do here, click on a state to see the control panel options for that state,and click on an edge to see the control panel options for that edge. Click next to continue the tour.`,
+    title: "Control panel",
+    target: "#control",
+    order: 3,
+    group: "my-first-tour"
+  },
+
+  
+ 
+      ]
+
+        //initialize tour guide
+        const tg = new tourguide.TourGuideClient( {
+          steps: steps,
+    })
+
+      //Take a tour button
+      document.getElementById('tour').addEventListener('click', function () {
+       tg.start();
+      });
+
+      ///////////
+    });
+
+
+
+
+  </script>
 </body>
+
 </html>
