@@ -397,12 +397,12 @@ But we dont need to delete the transitions stored in the edge's data because the
 
           if (addingState) {
             // Enable node adding mode
-            cy.on("click", addNodeHandler);
+            cy.on("click tap", addNodeHandler);
 
             addStateButton.textContent = "Disable state mode";
           } else {
             // Disable node adding mode
-            cy.off("click", addNodeHandler);
+            cy.off("click tap", addNodeHandler);
             addStateButton.textContent = "Enable state mode";
           }
         },
@@ -568,7 +568,7 @@ But we dont need to delete the transitions stored in the edge's data because the
   */
 
   //Control panel for the nodes
-  cy.on("click", "node", function (e) {
+  cy.on("click tap", "node", function (e) {
     var clickedNode = e.target;
 
     //Check if the node is a start, accept or reject state since this was stored in the data of the node
@@ -676,7 +676,7 @@ But we dont need to delete the transitions stored in the edge's data because the
 
 
   //Control panel for the edges
-  cy.on("click", "edge", function (e) {
+  cy.on("click tap", "edge", function (e) {
     var clickedEdge = e.target;
 
     currentEdge = clickedEdge;
@@ -1034,7 +1034,7 @@ But we dont need to delete the transitions stored in the edge's data because the
 
   
   //Make it so that no node being selected means that the control div is empty
-  cy.on("click", function (e) {
+  cy.on("click tap", function (e) {
     if (e.target === cy) {
       document.getElementById(
         "control"
