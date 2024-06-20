@@ -1,5 +1,46 @@
 // Description: This file contains the main logic for the Turing machine simulator.
 
+// Define the TuringMachine class, will probably be moved to a separate file later
+class TuringMachine {
+    constructor(tape, initialState, transitionFunction, finalStates) {
+        this.tape = tape.split('');
+        this.currentIdx = 0;
+        this.currentState = initialState;
+        this.transitionFunction = transitionFunction;
+        this.finalStates = finalStates;
+    }
+
+    step() {
+        const currentSymbol = this.tape[this.currentIdx];
+        const stateSymbolPair = `${this.currentState},${currentSymbol}`;
+        
+        if (stateSymbolPair in this.transitionFunction) {
+            const [nextState, writeSymbol, move] = this.transitionFunction[stateSymbolPair];
+            this.tape[this.currentIdx] = writeSymbol;
+            this.currentIdx += move === 'R' ? 1 : -1;
+            this.currentState = nextState;
+        } else {
+            return false;  // No valid transition, halt
+        }
+        
+        return true;
+    }
+
+    run() {
+        while (!this.finalStates.includes(this.currentState)) {
+            if (!this.step()) {
+                break;
+            }
+        }
+    }
+
+    getTape() {
+        return this.tape.join('');
+    }
+}
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
   //Define global variable(Current Selected Edge)
   var currentEdge = null;
@@ -291,7 +332,58 @@ But we dont need to delete the transitions stored in the edge's data because the
   }
 
   
+//   function runTuringMachine() {
+//     // Get the input string from the input field
+//     input = document.getElementById("input").value.split("");
 
+//     // Reset the input field
+//     document.getElementById("input").value = "";
+
+//     // Check if the input string is empty
+//     if (input.length === 0) {
+//       alert("Please enter an input string");
+//       return;
+//     }
+
+//     // Check if the Turing machine has a start state
+//     if (initialState === null) {
+//       alert("Please select a start state");
+//       return;
+//     }
+
+//     // Check if the Turing machine has an accept state
+//     if (acceptState === null) {
+//       alert("Please select an accept state");
+//       return;
+//     }
+
+//     // Check if the Turing machine has a reject state
+//     if (rejectState === null) {
+//       alert("Please select a reject state");
+//       return;
+//     }
+
+//     // Check if the Turing machine has a transition function
+//     if (Object.keys(transitionFunction).length === 0) {
+//       alert("Please add transitions to the Turing machine");
+//       return;
+//     }
+
+//     // Reset the Turing machine
+//     resetTuringMachine();
+
+//     // Create a new tape with the input string
+//     var tape = new Tape(input);
+
+//     // Create a new Turing machine with the tape, initial state, accept state, reject state and transition function
+//     tm = new TuringMachine(tape, initialState, acceptState, rejectState, transitionFunction);
+
+//     // Run the Turing machine
+//     tm.run();
+
+//     // Update the tape on the canvas
+//     updateTape(tape);
+//   }
 
   /*
    Cytoscape context menu for nodes, edges and core. This allows for the user to perform certain shortcuts on the graph 
@@ -948,7 +1040,9 @@ But we dont need to delete the transitions stored in the edge's data because the
       currentEdge.style({
         "label": label,
         "text-wrap": "wrap",
-      "font-size": "10px",  // Adjust font size
+        "text-background-shape": "roundrectangle",
+        
+      "font-size": "8px",  // Adjust font size
       "font-family": "Arial, sans-serif",  // Choose a legible font
       "text-background-color": "#999999",  // Set background color for the text
       "text-background-opacity": 0.8,  // Set background opacity
@@ -1093,6 +1187,10 @@ But we dont need to delete the transitions stored in the edge's data because the
     cy.on("select", "edge", function (e) {
         currentEdge = e.target;
     });
+
+    // var myTm = new TuringMachine();
+
+   
   /////Extra things end here////
 
  
