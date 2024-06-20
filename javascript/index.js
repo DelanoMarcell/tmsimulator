@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Cytoscape initialisation
   var cy = (window.cy = cytoscape({
     wheelSensitivity: 0.075,
+    zoom: 1.75,
     // selectionType: 'additive',
     boxSelectionEnabled: true, //shift, ctrl to box select
     container: document.getElementById("cy"),
@@ -303,9 +304,24 @@ But we dont need to delete the transitions stored in the edge's data because the
     menuRadius: 80,
     commands: [
       {
-        content: '<p class="text-xs">Edit transition</p>',
+        content: '<p class="text-xs">Add transition</p>',
         select: function (ele) {
-          console.log(ele.id());
+            // currentEdge = ele;
+
+            //select the current edge(deselect any other edge that is selected)
+            cy.edges().forEach((edge) => {
+                if(edge !== ele){
+                    edge.unselect();
+                }
+            });
+            ele.select();
+           
+            //show modal after a short time because there was a right click event causing a glitch
+            setTimeout(() => {
+              document.getElementById("modalTransition").classList.remove("hidden");
+            }, 50);
+          
+           
         },
       },
       {
@@ -338,17 +354,18 @@ But we dont need to delete the transitions stored in the edge's data because the
     selector: "node",
     menuRadius: 50,
     commands: [
+      
       {
-        content: '<p class="text-xs">Delete node</p>',
-        select: function (ele) {
-          deleteNode(ele);
-        },
-      },
-      {
-        content: '<p class="text-xs">Clear state</p>',
+        content: '<p class="text-xs">Clear State</p>',
 
         select: function (ele) {
         clearState(ele);
+        },
+      },
+      {
+        content: '<p class="text-xs">Delete State</p>',
+        select: function (ele) {
+          deleteNode(ele);
         },
       },
     ],
@@ -373,22 +390,7 @@ But we dont need to delete the transitions stored in the edge's data because the
     selector: "core",
     menuRadius: 70,
     commands: [
-      {
-        content: '<p class="text-xs">Draw mode</p>',
-        select: function (ele) {
-          if (drawMode) {
-            drawMode = false;
-            eh.disableDrawMode();
-            document.getElementById("drawMode").textContent =
-              "Enable draw mode";
-          } else {
-            drawMode = true;
-            eh.enableDrawMode();
-            document.getElementById("drawMode").textContent =
-              "Disable draw mode";
-          }
-        },
-      },
+     
       {
         content: '<p class="text-xs">State mode</p>',
         //change the direction of egde to opposite
@@ -404,6 +406,22 @@ But we dont need to delete the transitions stored in the edge's data because the
             // Disable node adding mode
             cy.off("tap", addNodeHandler);
             addStateButton.textContent = "Enable state mode";
+          }
+        },
+      },
+      {
+        content: '<p class="text-xs">Draw mode</p>',
+        select: function (ele) {
+          if (drawMode) {
+            drawMode = false;
+            eh.disableDrawMode();
+            document.getElementById("drawMode").textContent =
+              "Enable draw mode";
+          } else {
+            drawMode = true;
+            eh.enableDrawMode();
+            document.getElementById("drawMode").textContent =
+              "Disable draw mode";
           }
         },
       },
@@ -493,11 +511,11 @@ But we dont need to delete the transitions stored in the edge's data because the
     preview: true, // whether to show added edges preview before releasing selection
     hoverDelay: 150, // time spent hovering over a target node before it is considered selected
     snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
-    snapThreshold: 15, // the target node must be less than or equal to this many pixels away from the cursor/finger
-    snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
+    snapThreshold: 10, // the target node must be less than or equal to this many pixels away from the cursor/finger
+    snapFrequency: 30, // the number of times per second (Hz) that snap checks done (lower is less expensive)
     noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
     disableBrowserGestures: true, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
-    snapDelay: 2000,
+    
   };
 
   //Initialise the edgehandles extension that allows for the user to draw edges between nodes by dragging from one node to another
@@ -758,13 +776,13 @@ But we dont need to delete the transitions stored in the edge's data because the
 
   /*
   
-    Event listeners for the modal that appears when the user wants to add transitions, delete transitions or delete an edge.
+    Event listeners for the modals that appears when the user wants to add transitions, delete transitions or delete an edge.
 
   */
 
 
 
-  // Handle delete transitions button
+  // Handle delete transitions button submit
   document.getElementById("deleteTransitionsSubmit").addEventListener("click", function () {
       var checkboxes = document.querySelectorAll('input[type="checkbox"]');
 
@@ -910,11 +928,36 @@ But we dont need to delete the transitions stored in the edge's data because the
 
       currentEdge.data("transitions", transitions);
 
-      // Update the edge label to show all transitions
+      //// Determine offset based on edge direction so that nodes dont overlap, one way is to get the id digit, if the source id digit is less than the target id digit, then offset is 10, else offset is -10
+    //   var offsetX = 0;
+    //   var offsetY = 0;
+
+    //   if(currentEdge.source().id().charAt(1) < currentEdge.target().id().charAt(1)){
+    //     offsetX = 15;
+    //     offsetY = 15;
+    //     }
+    //     else{
+    //         offsetX = -15;
+    //         offsetY = -15;
+    //     }
+     
+      // Update the edge label to show all transitions, dont add it perfectly in center of edge, add a few pixels away from center
       var label = transitions
         .map((t) => `(${t.currentSymbol}, ${t.nextSymbol}, ${t.direction})`)
         .join(", ");
-      currentEdge.style("label", label);
+      currentEdge.style({
+        "label": label,
+        "text-wrap": "wrap",
+      "font-size": "10px",  // Adjust font size
+      "font-family": "Arial, sans-serif",  // Choose a legible font
+      "text-background-color": "#999999",  // Set background color for the text
+      "text-background-opacity": 0.8,  // Set background opacity
+
+    //   "text-margin-x": offsetX,  // Offset in x-direction
+    //   "text-margin-y": offsetY   // Offset in y-direction
+      });
+
+   
 
       //clear the form
       document.getElementById("current-symbol").value = "";
@@ -1046,6 +1089,10 @@ But we dont need to delete the transitions stored in the edge's data because the
     }
   });
 
+  //When an edge is selected in general(not through a tap neccessarily), set the current edge to the edge that was selected 
+    cy.on("select", "edge", function (e) {
+        currentEdge = e.target;
+    });
   /////Extra things end here////
 
  
