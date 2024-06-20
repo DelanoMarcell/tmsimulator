@@ -236,7 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
    /*
 Note about these two things below. Delete edge and cy.on(remove , edge)
 We remove the edge transitions from the global transition function when an edge is deleted. This is because the transition function is a global variable that stores all the transitions in the Turing machine. When an edge is deleted, the transitions that were stored in that edge are also deleted from the transition function. This is to ensure that the transition function is always up to date with the transitions in the Turing machine.
-But we dont need to delete the transitions stored in the edge's 
+But we dont need to delete the transitions stored in the edge's data because the edge is being deleted, so the data is also deleted.
    */
   function deleteEdge(ele) {
     ele.remove();
@@ -397,12 +397,12 @@ But we dont need to delete the transitions stored in the edge's
 
           if (addingState) {
             // Enable node adding mode
-            cy.on("click tap", addNodeHandler);
+            cy.on("tap", addNodeHandler);
 
             addStateButton.textContent = "Disable state mode";
           } else {
             // Disable node adding mode
-            cy.off("click tap", addNodeHandler);
+            cy.off("tap", addNodeHandler);
             addStateButton.textContent = "Enable state mode";
           }
         },
@@ -443,11 +443,11 @@ But we dont need to delete the transitions stored in the edge's
 
     if (addingState) {
       // Enable node adding mode
-      cy.on("click tap", addNodeHandler);
+      cy.on("tap", addNodeHandler);
       addStateButton.textContent = "Disable state mode";
     } else {
       // Disable node adding mode
-      cy.off("click tap", addNodeHandler);
+      cy.off("tap", addNodeHandler);
       addStateButton.textContent = "Enable state mode";
     }
   });
@@ -568,7 +568,7 @@ But we dont need to delete the transitions stored in the edge's
   */
 
   //Control panel for the nodes
-  cy.on("click tap", "node", function (e) {
+  cy.on("tap", "node", function (e) {
     var clickedNode = e.target;
 
     //Check if the node is a start, accept or reject state since this was stored in the data of the node
@@ -676,7 +676,7 @@ But we dont need to delete the transitions stored in the edge's
 
 
   //Control panel for the edges
-  cy.on("click tap", "edge", function (e) {
+  cy.on("tap", "edge", function (e) {
     var clickedEdge = e.target;
 
     currentEdge = clickedEdge;
@@ -1034,7 +1034,7 @@ But we dont need to delete the transitions stored in the edge's
 
   
   //Make it so that no node being selected means that the control div is empty
-  cy.on("click tap", function (e) {
+  cy.on("tap", function (e) {
     if (e.target === cy) {
       document.getElementById(
         "control"
