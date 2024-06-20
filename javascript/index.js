@@ -236,7 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
    /*
 Note about these two things below. Delete edge and cy.on(remove , edge)
 We remove the edge transitions from the global transition function when an edge is deleted. This is because the transition function is a global variable that stores all the transitions in the Turing machine. When an edge is deleted, the transitions that were stored in that edge are also deleted from the transition function. This is to ensure that the transition function is always up to date with the transitions in the Turing machine.
-But we dont need to delete the transitions stored in the edge's data because the edge is being deleted, so the data is also deleted. The transition function is the main data structure that stores the transitions in the Turing machine, so it is important that it is always up to date with the transitions in the Turing machine.
+But we dont need to delete the transitions stored in the edge's 
    */
   function deleteEdge(ele) {
     ele.remove();
