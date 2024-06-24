@@ -418,6 +418,7 @@ But we dont need to delete the transitions stored in the edge's data because the
         <label for="tm" class="text-center text-lg font-semibold">Tape input:</label>
         <input type="text" name="tm" id="tminput" autocomplete="tm" value="${tmInput}"
           class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
+          
         <button
           class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
           type="button" id="runtm">Run</button>
@@ -425,6 +426,7 @@ But we dont need to delete the transitions stored in the edge's data because the
           class="hidden text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
           type="button" id="tmhalt">Stop</button>
       </div>
+      
       <div id="tmStatusDiv" class=" border-[#FAF0E6] border-2 border-dashed m-2 rounded-md">
       <p class="text-center text-lg font-semibold" id="tmStatus"></p>
     </div>
@@ -1049,6 +1051,12 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
 
   */
 
+    function getAllElementStyles(cy) {
+  const elements = cy.elements();
+  elements.forEach(ele => {
+    ele.data('style', ele.style());
+  });
+}
 
 
   // Handle delete transitions button submit
@@ -1420,59 +1428,10 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
           this.currentState = initialState;
           this.transitionFunction = transitionFunction;
           this.finalStates = finalStates;
-          this.animationCancelled = false;
+      
       }
 
-      async resetNodeColors() {
-        cy.nodes().forEach(node => {
-            node.style('background-color','#999999');
-        });
-    }
 
-
-      async animateStateTransition(oldState, newState) {
-        
-      
-          // Animation for oldState
-          await new Promise((resolve, reject) => {
-              if (this.animationCancelled) {
-                //reset the node colors
-                // this.resetNodeColors();
-                  // reject(new Error('Animation cancelled'));
-                  return;
-              }
-      
-              cy.elements(`#${oldState}`).animate({
-                  style: { 'background-color': 'purple' }
-              }, {
-                  duration: 250,
-                  complete: resolve,  // Resolve the promise after animation
-                  queue: false  // Ensure animation starts immediately
-              });
-          });
-      
-        
-      
-          // Animation for newState
-          await new Promise((resolve, reject) => {
-              if (this.animationCancelled) {
-                //reset the node colors
-                // this.resetNodeColors();
-                  // reject(new Error('Animation cancelled'));
-                  return;
-              }
-      
-              cy.elements(`#${newState}`).animate({
-                  style: { 'background-color': 'red' }
-              }, {
-                  duration: 250,
-                  complete: resolve,  // Resolve the promise after animation
-                  queue: false  // Ensure animation starts immediately
-              });
-          });
-      }
-
-  
       async step() {
           var currentSymbol = this.tape[this.currentIdx];
           if(currentSymbol === undefined){
@@ -1504,11 +1463,6 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
       }
 
       async halt(manualHalt){
-          // //Reset the node colors
-          // await this.resetNodeColors();
-
-        
-       
         
 
 
@@ -1523,15 +1477,10 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
           <p class="text-center text-green-600 text-lg font-semibold" id="tmStatus">
               <span class="text-xl font-bold">Turing machine halted.</span><br>
               Final tape: ${finalTape}<br>
-              Final state: ${stateStatus.toUpperCase()}
-              
+              Final state: ${stateStatus.toUpperCase()} 
           </p>`;
 
-          // //remove the halt button
-          // document.getElementById("tmhalt").classList.add("hidden");
-
-          
-
+      
 
         }else if(cy.getElementById(finalState).data('reject')){
           stateStatus = "reject";
@@ -1543,9 +1492,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
               Final state: ${stateStatus.toUpperCase()}
           </p>`;
 
-          // //remove the halt button
-          // document.getElementById("tmhalt").classList.add("hidden");
-
+      
 
         }else if(!cy.getElementById(finalState).data('accept') && !cy.getElementById(finalState).data('reject') && !manualHalt){
           stateStatus = "halt";
@@ -1554,11 +1501,10 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
           <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">The turing machine halted. No valid transition for state "${stateName}" and symbol "${this.tape[this.currentIdx]}".</p>
           <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
               Final tape: ${finalTape}<br>
-              Final state: ${stateName}
+              Final state: ${stateName}<br>
+              Status: REJECT
           </p>`;
 
-          // //remove the halt button
-          // document.getElementById("tmhalt").classList.add("hidden");
 
           
         }else if(manualHalt){
@@ -1571,17 +1517,10 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
               Final state: ${stateName}
           </p>`;
 
-          // //remove the halt button
-          // document.getElementById("tmhalt").classList.add("hidden");
-
-       
-
         }
 
           
-        //Cancel the animation last
-        this.animationCancelled = true;
-
+     
 
 
        }
@@ -1664,13 +1603,6 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
 
 
 
-      //  //Split the input string into an array
-      //  input = input.split('');
-
-      //  input.forEach((symbol) => {
-      //   document.getElementById("tape").innerHTML += `<div class=" tape-cell" id="${symbol}">${symbol}</div>`;
-      //   });
-
 
        
 
@@ -1692,12 +1624,136 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
       //   });
         
  
-
      });
  
      
   
   /////Extra things end here////
 
- 
+
+  document.getElementById("dropdownMenuButton").addEventListener("click", function () {
+    document.getElementById("dropdownMenuArea").classList.toggle("hidden");
+  });
+
+  window.addEventListener('click', function(event) {
+  if (!event.target.matches('#dropdownMenuButton')) {
+    document.getElementById("dropdownMenuArea").classList.add('hidden');
+  }
+});
+
+//export as png
+document.getElementById("exportAsPng").addEventListener("click", function () {
+  var png64 = cy.jpeg();
+  var a = document.createElement("a");
+  a.href = png64;
+  a.download = "turing-machine.png";
+  a.click();
+}
+);
+
+
+//export as json
+document.getElementById("exportAsJson").addEventListener("click", function () {
+  // Function to get the current styles of all elements
+  function getAllElementStyles(cy) {
+    cy.elements().forEach(ele => {
+      ele.data('style', ele.style());
+    });
+  }
+
+  // Get the current styles for all elements
+  getAllElementStyles(cy);
+
+  // Extract nodes and edges
+  const elements = cy.elements().jsons();
+
+  // Create the JSON object to export
+  const json = {
+    elements: elements,
+    transitionFunction: transitionFunction,
+    startState: initialState,
+    acceptState: acceptState,
+    rejectState: rejectState
+  };
+
+  // Convert the JSON object to a string and create a downloadable link
+  var a = document.createElement("a");
+  a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+  a.download = "turing-machine.json";
+  a.click();
+});
+
+
+
+
+//Import json
+// Trigger file input click on link click
+document.getElementById('importJson').addEventListener('click', function() {
+  document.getElementById('importJsonBtn').click();
+});
+
+document.getElementById("importJsonBtn").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const json = JSON.parse(e.target.result);
+    // console.log("imported json", json.elements);
+
+
+    cy.json(json);
+
+    //make start state
+    initialState = json.startState;
+    acceptState = json.acceptState;
+    rejectState = json.rejectState;
+
+    //add the transition function
+    transitionFunction = json.transitionFunction;
+
+    //add the transition function to the edges
+    cy.edges().forEach((edge) => {
+      var sourceId = edge.source().id();
+      var targetId = edge.target().id();
+      var transitionId = sourceId + "," + edge.data("transitions")[0].currentSymbol;
+      var transition = transitionFunction[transitionId];
+      edge.data("transitions", [
+        {
+          currentSymbol: transitionId.split(",")[1],
+          nextSymbol: transition[1],
+          direction: transition[2],
+        },
+      ]);
+
+      // Update the edge label
+      var label = edge.data("transitions")
+        .map((t) => `(${t.currentSymbol}, ${t.nextSymbol}, ${t.direction})`)
+        .join(", ");
+      edge.style({
+        "label": label,
+        "text-wrap": "wrap",
+        "text-background-shape": "roundrectangle",
+        
+      "font-size": "8px", 
+      "font-family": "Arial, sans-serif",  
+      "text-background-color": "#999999",  
+      "text-background-opacity": 0.8, 
+
+      }
+      );
+    });
+
+    // console.log("imported transition function", transitionFunction);
+    // console.log("imported start state", initialState);
+    // console.log("imported accept state", acceptState);
+    // console.log("imported reject state", rejectState);
+
+    makeStartState(cy.$("#" + initialState));
+    makeAcceptState(cy.$("#" + acceptState));
+    makeRejectState(cy.$("#" + rejectState));
+     
+  };
+  reader.readAsText(file);
+}
+);
+
 });///document ready end here
