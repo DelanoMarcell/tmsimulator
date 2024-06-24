@@ -1710,36 +1710,39 @@ document.getElementById("importJsonBtn").addEventListener("change", function (e)
     //add the transition function
     transitionFunction = json.transitionFunction;
 
-    //add the transition function to the edges
+   
+    // Add the transition function to the edges
     cy.edges().forEach((edge) => {
       var sourceId = edge.source().id();
       var targetId = edge.target().id();
-      var transitionId = sourceId + "," + edge.data("transitions")[0].currentSymbol;
-      var transition = transitionFunction[transitionId];
-      edge.data("transitions", [
-        {
-          currentSymbol: transitionId.split(",")[1],
+
+      // Get all transitions for this edge
+      var transitions = edge.data("transitions").map(t => {
+        var transitionId = sourceId + "," + t.currentSymbol;
+        var transition = transitionFunction[transitionId];
+        return {
+          currentSymbol: t.currentSymbol,
           nextSymbol: transition[1],
           direction: transition[2],
-        },
-      ]);
+        };
+      });
+
+      // Update the edge data with all transitions
+      edge.data("transitions", transitions);
 
       // Update the edge label
-      var label = edge.data("transitions")
+      var label = transitions
         .map((t) => `(${t.currentSymbol}, ${t.nextSymbol}, ${t.direction})`)
         .join(", ");
       edge.style({
         "label": label,
         "text-wrap": "wrap",
         "text-background-shape": "roundrectangle",
-        
-      "font-size": "8px", 
-      "font-family": "Arial, sans-serif",  
-      "text-background-color": "#999999",  
-      "text-background-opacity": 0.8, 
-
-      }
-      );
+        "font-size": "8px", 
+        "font-family": "Arial, sans-serif",  
+        "text-background-color": "#999999",  
+        "text-background-opacity": 0.8, 
+      });
     });
 
     // console.log("imported transition function", transitionFunction);
