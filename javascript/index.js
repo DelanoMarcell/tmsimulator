@@ -1,49 +1,13 @@
 // Description: This file contains the main logic for the Turing machine simulator.
 
-// Define the TuringMachine class, will probably be moved to a separate file later
-class TuringMachine {
-    constructor(tape, initialState, transitionFunction, finalStates) {
-        this.tape = tape.split('');
-        this.currentIdx = 0;
-        this.currentState = initialState;
-        this.transitionFunction = transitionFunction;
-        this.finalStates = finalStates;
-    }
-
-    step() {
-        const currentSymbol = this.tape[this.currentIdx];
-        const stateSymbolPair = `${this.currentState},${currentSymbol}`;
-        
-        if (stateSymbolPair in this.transitionFunction) {
-            const [nextState, writeSymbol, move] = this.transitionFunction[stateSymbolPair];
-            this.tape[this.currentIdx] = writeSymbol;
-            this.currentIdx += move === 'R' ? 1 : -1;
-            this.currentState = nextState;
-        } else {
-            return false;  // No valid transition, halt
-        }
-        
-        return true;
-    }
-
-    run() {
-        while (!this.finalStates.includes(this.currentState)) {
-            if (!this.step()) {
-                break;
-            }
-        }
-    }
-
-    getTape() {
-        return this.tape.join('');
-    }
-}
-
 
 
 document.addEventListener("DOMContentLoaded", function () {
   //Define global variable(Current Selected Edge)
   var currentEdge = null;
+
+ 
+  
 
   //define global variables for tm
   var input = [];
@@ -163,6 +127,82 @@ document.addEventListener("DOMContentLoaded", function () {
   }));
 
   /*
+Alert functionality, to show users messages when they perform certain actions
+  */
+  function showAlert(title,message) {
+   
+         
+
+
+  document.getElementById("alert").innerHTML = ` <div class="relative z-10" aria-labelledby="modal-title" role="dialog" id="modalAlert" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div
+          class="relative transform overflow-hidden rounded-lg bg-[#faf0e6] text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+  
+          <!-- Cross Icon for Closing -->
+          <div class="absolute top-0 right-0 pt-4 pr-4">
+            <button type="button" id="closeModalAlert"
+              class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              aria-label="Close">
+              <span class="sr-only">Close</span>
+              <!-- Cross Icon (SVG) -->
+              <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+  
+          <div class="bg-[#faf0e6] px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+            
+              <h2 class="text-lg text-center font-semibold leading-6 text-gray-900" id="alertTitle">${title}</h2>
+  
+              <div class="mt-2" id="alertBody">
+              <p class="text-center text-lg font-bold">${message}</p>
+              
+              </div>
+  
+              
+        <div class="bg-[#faf0e6] px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button" id="alertSubmit"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+            OK
+          </button>
+
+        </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+
+
+  //Close the alert modal button
+  var closeModalAlert = document.getElementById("closeModalAlert");
+  closeModalAlert.addEventListener("click", function () {
+    document.getElementById("modalAlert").remove();
+  });
+
+  //Submit button for the alert modal
+  var alertSubmit = document.getElementById("alertSubmit");
+  alertSubmit.addEventListener("click", function () {
+    document.getElementById("modalAlert").remove();
+  });
+
+
+
+
+  }
+  
+
+
+  /*
    Functions for reusability
   */
   function makeStartState(ele) {
@@ -193,6 +233,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
  
   function makeAcceptState(ele) {
+    //Before making accept state, check if there are any outgoing edges from this state, because an accept state should not have any outgoing edges
+    var outgoingEdges = cy.edges(`[source = "${ele.id()}"]`);
+
+    if(outgoingEdges.length > 0){
+      showAlert("That's a halt state!", "Accept states cannot have outgoing edges.");
+      //clear the control panel selected radios
+      document.getElementById("accept-state").checked = false;
+      return;
+      
+    }
+
+
+
+
     cy.nodes().forEach((node) => {
       if (node !== ele && node.data("accept") === true) {
         node.data("accept", false);
@@ -203,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ele.data("accept", true);
     ele.data("start", false);
     ele.data("reject", false);
-    ele.style("border-color", "red");
+    ele.style("border-color", "blue");
     ele.style("border-width", "3");
 
     if (ele.id() === initialState) {
@@ -213,10 +267,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     acceptState = ele.id();
+
+    
   }
 
   
   function makeRejectState(ele) {
+     //Before making reject state, check if there are any outgoing edges from this state, because a reject state should not have any outgoing edges
+     var outgoingEdges = cy.edges(`[source = "${ele.id()}"]`);
+
+     if(outgoingEdges.length > 0){
+       showAlert("That's a halt state!", "Reject states cannot have outgoing edges.");
+       //clear the control panel selected radios
+        document.getElementById("reject-state").checked = false;
+       return;
+     }
     cy.nodes().forEach((node) => {
       if (node !== ele && node.data("reject") === true) {
         node.data("reject", false);
@@ -285,17 +350,19 @@ But we dont need to delete the transitions stored in the edge's data because the
 
     //delete the transition from the transition function, but all the transitions that have the same source and symbol
     var transitions = ele.style("label").split(",");
-    console.log("transitions", transitions)
-    console.log("transitions length", transitions.length)
+   
     //delete all transitions, not just the 0th one
     for (var i = 0; i < transitions.length; i++) {
       var transitionId = ele.source().id() + "," + transitions[i].split("(")[1];
       delete transitionFunction[transitionId];
     }
 
+    //Show main control panel after deleting edge
+    showMainControlPanel();
+
     
-    console.log(transitionFunction);
-    console.log("transition stored in edge", ele.data("transitions"));
+    console.log("transitionFunction after edge deleted", transitionFunction);
+    //console.log("transition stored in edge", ele.data("transitions"));
   }
 
   //check that at any given time that an edge goes away, the transition function is updated, this cant be done in the delete edge function because an edge doesnt only go away when it is deleted, it can also go away when nodes are removed
@@ -310,7 +377,7 @@ But we dont need to delete the transitions stored in the edge's data because the
       delete transitionFunction[transitionId];
     }
     console.log(transitionFunction);
-    console.log("transition stored in edge", ele.data("transitions"));
+    //console.log("transition stored in edge", ele.data("transitions"));
   });
 
   function deleteNode(ele) {
@@ -326,64 +393,337 @@ But we dont need to delete the transitions stored in the edge's data because the
     }
 
     ele.remove();
+
+    //Show main control panel after deleting node
+    showMainControlPanel();
   
 
     console.log(transitionFunction);
   }
 
+  function showMainControlPanel(){
+
+    var tmInput = "";
+
+    if(document.getElementById("tminput") !== null){
+      tmInput = document.getElementById("tminput").value;
+    }
+
+      document.getElementById("control").innerHTML = ` <p class="text-center text-lg font-bold">Control Panel</p>
+
+      
+
+      <div class="flex flex-col p-2">
+      
+        <label for="tm" class="text-center text-lg font-semibold">Tape input:</label>
+        <input type="text" name="tm" id="tminput" autocomplete="tm" value="${tmInput}"
+          class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
+        <button
+          class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
+          type="button" id="runtm">Run</button>
+          <button
+          class="hidden text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
+          type="button" id="tmhalt">Stop</button>
+      </div>
+      <div id="tmStatusDiv" class=" border-[#FAF0E6] border-2 border-dashed m-2 rounded-md">
+      <p class="text-center text-lg font-semibold" id="tmStatus"></p>
+    </div>
+
+    
+
+`;
+
+    // //Add event listener to the stop tm button
+    // var stopTm = document.getElementById("tmhalt");
+
+
+  //Run tm machine button
+  var runTm = document.getElementById("runtm");
   
-//   function runTuringMachine() {
-//     // Get the input string from the input field
-//     input = document.getElementById("input").value.split("");
+   runTm.addEventListener("click", function () {
+     // Get the input string from the input field  
+     var input = document.getElementById("tminput").value;
 
-//     // Reset the input field
-//     document.getElementById("input").value = "";
+     if(input === ""){
+        
+       document.getElementById("tmStatusDiv").style.borderColor = "red";
+      document.getElementById("tmStatus").innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+      Please enter an input string.
+      </p>`;
+      return;
+    }
+     if(initialState === null){
+      document.getElementById("tmStatusDiv").style.borderColor = "red";
+        document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+        Please select a start state.
+        </p>`;
+        
+       return;
+     }
+     if(acceptState === null){
+      document.getElementById("tmStatusDiv").style.borderColor = "red";
+        document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+        Please select an accept state.
+        </p>`;
+      
+       return;
+     }
+     if(rejectState === null){
+      document.getElementById("tmStatusDiv").style.borderColor = "red";
+        document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+        Please select a reject state.
+        </p>`;
+       return;
+     }
 
-//     // Check if the input string is empty
-//     if (input.length === 0) {
-//       alert("Please enter an input string");
-//       return;
-//     }
+        //Reset the status div
+        document.getElementById("tmStatus").innerHTML = "";
+        document.getElementById("tmStatusDiv").style.borderColor = "#FAF0E6";
 
-//     // Check if the Turing machine has a start state
-//     if (initialState === null) {
-//       alert("Please select a start state");
-//       return;
-//     }
 
-//     // Check if the Turing machine has an accept state
-//     if (acceptState === null) {
-//       alert("Please select an accept state");
-//       return;
-//     }
+     var initState = initialState;
+     var finalStates = [acceptState, rejectState];
+     var transitions = transitionFunction;
 
-//     // Check if the Turing machine has a reject state
-//     if (rejectState === null) {
-//       alert("Please select a reject state");
-//       return;
-//     }
+     var tm = new TuringMachine(input, initState, transitions, finalStates);
 
-//     // Check if the Turing machine has a transition function
-//     if (Object.keys(transitionFunction).length === 0) {
-//       alert("Please add transitions to the Turing machine");
-//       return;
-//     }
 
-//     // Reset the Turing machine
-//     resetTuringMachine();
+     tm.run();
 
-//     // Create a new tape with the input string
-//     var tape = new Tape(input);
+    // //Add a halt button to stop the turing machine
+    // document.getElementById("tmhalt").classList.remove("hidden");
 
-//     // Create a new Turing machine with the tape, initial state, accept state, reject state and transition function
-//     tm = new TuringMachine(tape, initialState, acceptState, rejectState, transitionFunction);
+    // //Add event listener to the stop tm button
+    // stopTm.addEventListener("click", function () {
+    //   tm.halt(true);
+    // });
 
-//     // Run the Turing machine
-//     tm.run();
+  
 
-//     // Update the tape on the canvas
-//     updateTape(tape);
-//   }
+   });
+
+  }
+
+function showEdgeControlPanel(ele) {
+  var clickedEdge = ele;
+
+  currentEdge = clickedEdge;
+
+  //The html for the control panel when an edge is clicked, this includes the option to add a transition, delete a transition or delete the edge
+  var edgeDetails = `
+<div class="p-2 m-2" id="${clickedEdge.id()}">
+
+<div class="flex items-center mb-2">
+<svg class="w-6 h-6 mr-2 cursor-pointer" fill="none" id="mainControlPanel" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+</svg>
+<p class="text-lg text-center font-bold text-black">Edge panel</p>
+</div>
+
+<button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 w-full mb-2" type="button" id="addTransition" >Add Transition</button>
+
+<button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 w-full mb-2" type="button" id="deleteTransitions" >Delete Transitions</button>
+
+<button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 w-full mb-2" type="button" id="deleteEdge" >Delete Edge</button>
+
+
+
+</div>
+`;
+
+
+
+  //Adding the html to the control div(container for the control panel)
+  document.getElementById("control").innerHTML = edgeDetails;
+
+ //Add event listener to the main control panel button
+document.getElementById("mainControlPanel").addEventListener("click", function () {
+  showMainControlPanel();
+  cy.edges().forEach((edge) => {
+    edge.unselect();
+  });
+});
+
+  // Add event listener to the add transition button
+  document
+    .getElementById("addTransition")
+    .addEventListener("click", function () {
+      document.getElementById("modalTransition").classList.remove("hidden");
+    });
+
+  // Add event listener to the delete transition button
+  document.getElementById("deleteTransitions").addEventListener("click", function () {
+
+      document.getElementById("modalTransitionDelete").classList.remove("hidden");
+      const sourceState = clickedEdge.source().data("name");
+      const targetState = clickedEdge.target().data("name");
+      const modalTitle = `Transitions: "${sourceState}" to "${targetState}"`;
+      deleteTransitionsTitle.textContent = modalTitle;
+
+      //get all transitions stored in the edge
+      var transitions = currentEdge.data("transitions");
+      console.log(transitions);
+
+      var innerHtmlDeleteTransitions = "";
+
+      if (transitions === undefined || transitions.length === 0) {
+        document.getElementById(
+          "deleteTransitionsBody"
+        ).innerHTML = `<p class="text-center text-lg font-bold">No transitions to delete</p>`;
+        document
+          .getElementById("deleteTransitionsSubmit")
+          .classList.add("hidden");
+        return;
+      }
+
+      document.getElementById("deleteTransitionsSubmit").classList.remove("hidden");
+
+      for (var i = 0; i < transitions.length; i++) {
+        var transition = transitions[i];
+        innerHtmlDeleteTransitions += `
+<div class="transition-item">
+  <input type="checkbox" id="transition${i}" data-index="${i}">
+  <label for="transition${i}">(${transition.currentSymbol}, ${transition.nextSymbol}, ${transition.direction})</label>
+</div>
+`;
+      }
+
+      document.getElementById("deleteTransitionsBody").innerHTML =
+        innerHtmlDeleteTransitions;
+    });
+
+  // Add event listener to the delete edge button
+  document
+    .getElementById("deleteEdge")
+    .addEventListener("click", function () {
+      deleteEdge(clickedEdge);
+    });
+
+  }
+
+
+function showNodeControlPanel(ele) {
+  var clickedNode = ele;
+
+  //Check if the node is a start, accept or reject state since this was stored in the data of the node
+  var startBool = clickedNode.data("start");
+  var acceptBool = clickedNode.data("accept");
+  var rejectBool = clickedNode.data("reject");
+
+  
+  //The html for the control panel with the details of the node that was clicked, including the name of the node, and the type of state it has
+  var nodeDetails = `
+<div class="p-2 t" id="${clickedNode.id()}">
+<div class="flex items-center mb-2">
+<svg class="w-6 h-6 mr-2 cursor-pointer" fill="none" id="mainControlPanel" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+</svg>
+<p class="text-lg text-center font-bold text-black">State panel</p>
+</div>
+<label for="stateName" class="block text-md font-bold text-black">State:</label>
+<input type="text" id="stateName" name="stateName" class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-300 bg-[white] rounded-sm text-black  font-bold" value="${clickedNode.data(
+    "name"
+  )}">
+
+<fieldset class="mt-4">
+<legend class="sr-only">State Type</legend>
+
+<div class="flex items-center mb-4">
+<input id="start-state" type="radio" name="stateType" value="start" class="w-4 h-4 m-2 border-gray-300 focus:ring-2 focus:ring-blue-300 ${
+  startBool ? "selected" : ""
+}" ${startBool ? "checked" : ""}>
+<label for="start-state" class="block ms-2 text-sm font-medium text-black">
+  Start State
+</label>
+</div>
+
+<div class="flex items-center mb-4">
+<input id="accept-state" type="radio" name="stateType" value="accept" class="w-4 h-4 m-2 border-gray-300 focus:ring-2 focus:ring-blue-300 ${
+  acceptBool ? "selected" : ""
+}" ${acceptBool ? "checked" : ""}>
+<label for="accept-state" class="block ms-2 text-sm font-medium text-black">
+  Accept State
+</label>
+</div>
+
+<div class="flex items-center mb-4">
+<input id="reject-state" type="radio" name="stateType" value="reject" class="w-4 h-4 m-2 border-gray-300 focus:ring-2 focus:ring-blue-300 ${
+  rejectBool ? "selected" : ""
+}" ${rejectBool ? "checked" : ""}>
+<label for="reject-state" class="block ms-2 text-sm font-medium text-black">
+  Reject State
+</label>
+</div>
+
+</fieldset>
+
+<div class="flex justify-center">
+<button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 mb-2 w-full" type="button" id="clearState" >Clear State Type</button>
+</div>
+
+<div class="flex justify-center">
+<button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 mb-2 w-full" type="button" id="deleteStateControl" >Delete State</button>
+</div>
+
+
+</div>
+
+`;
+
+//Adding the html to the control div(container for the control panel)
+document.getElementById("control").innerHTML = nodeDetails;
+
+//Add event listener to the main control panel button
+document.getElementById("mainControlPanel").addEventListener("click", function () {
+  showMainControlPanel();
+  cy.nodes().forEach((node) => {
+    node.unselect();
+  });
+});
+
+  // Add event listeners to the radio buttons
+  document
+    .getElementById("start-state")
+    .addEventListener("change", function () {
+      makeStartState(clickedNode);
+    });
+
+  document
+    .getElementById("accept-state")
+    .addEventListener("change", function () {
+      makeAcceptState(clickedNode);
+    });
+
+  document
+    .getElementById("reject-state")
+    .addEventListener("change", function () {
+      makeRejectState(clickedNode);
+    });
+
+  // Add event listener to the input field and change the node id when the input field changes
+  document.getElementById("stateName").addEventListener("input", function () {
+    clickedNode.data("name", this.value);
+    clickedNode.style("content", this.value);
+  });
+
+  // Add event listener to the clear state button, the clear state button removes the start, accept or reject state from the node
+  document
+    .getElementById("clearState")
+    .addEventListener("click", function () {
+     clearState(clickedNode);
+     
+    });
+
+  // Add event listener to the delete button, the delete button removes the node from the graph
+  document
+    .getElementById("deleteStateControl")
+    .addEventListener("click", function () {
+      deleteNode(clickedNode);
+    });
+}
+
+
+
 
   /*
    Cytoscape context menu for nodes, edges and core. This allows for the user to perform certain shortcuts on the graph 
@@ -406,12 +746,20 @@ But we dont need to delete the transitions stored in the edge's data because the
                     edge.unselect();
                 }
             });
+
+            //deselect any other node that is selected
+            cy.nodes().forEach((node) => {
+                node.unselect();
+            });
             ele.select();
            
             //show modal after a short time because there was a right click event causing a glitch
             setTimeout(() => {
               document.getElementById("modalTransition").classList.remove("hidden");
             }, 50);
+
+            //Todo,control panel update with the edge that was clicked(did it when an edge is selected in general)
+            
           
            
         },
@@ -587,6 +935,10 @@ But we dont need to delete the transitions stored in the edge's data because the
   //The parameters for the edgehandles extension in cytoscape. This extension allows for the user to draw edges between nodes by dragging from one node to another
   let defaults = {
     canConnect: function (sourceNode, targetNode) {
+      if (sourceNode.data("reject") || sourceNode.data("accept")) {
+        return false;
+      }
+
       // Check if there is an existing edge from sourceNode to targetNode
       let existingEdgeFromSourceToTarget =
         sourceNode.edgesTo(targetNode).length > 0;
@@ -595,6 +947,7 @@ But we dont need to delete the transitions stored in the edge's data because the
       return !existingEdgeFromSourceToTarget;
     },
 
+   
     edgeParams: function (sourceNode, targetNode) {
       // for edges between the specified source and target
       // return element object to be passed to cy.add() for edge
@@ -602,7 +955,7 @@ But we dont need to delete the transitions stored in the edge's data because the
     },
     preview: true, // whether to show added edges preview before releasing selection
     hoverDelay: 150, // time spent hovering over a target node before it is considered selected
-    snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
+    snap: false, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
     snapThreshold: 10, // the target node must be less than or equal to this many pixels away from the cursor/finger
     snapFrequency: 30, // the number of times per second (Hz) that snap checks done (lower is less expensive)
     noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
@@ -679,190 +1032,14 @@ But we dont need to delete the transitions stored in the edge's data because the
 
   //Control panel for the nodes
   cy.on("tap", "node", function (e) {
-    var clickedNode = e.target;
-
-    //Check if the node is a start, accept or reject state since this was stored in the data of the node
-    var startBool = clickedNode.data("start");
-    var acceptBool = clickedNode.data("accept");
-    var rejectBool = clickedNode.data("reject");
-
-    
-    //The html for the control panel with the details of the node that was clicked, including the name of the node, and the type of state it has
-    var nodeDetails = `
-<div class="p-2 t" id="${clickedNode.id()}">
-<p class="text-lg text-center font-bold text-black">State panel</p>
-<label for="stateName" class="block text-sm font-bold text-black">State:</label>
-<input type="text" id="stateName" name="stateName" class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-300 bg-[white] rounded-sm text-black  font-bold" value="${clickedNode.data(
-      "name"
-    )}">
-
-<fieldset class="mt-4">
-<legend class="sr-only">State Type</legend>
-
-<div class="flex items-center mb-4">
-  <input id="start-state" type="radio" name="stateType" value="start" class="w-4 h-4 m-2 border-gray-300 focus:ring-2 focus:ring-blue-300 ${
-    startBool ? "selected" : ""
-  }" ${startBool ? "checked" : ""}>
-  <label for="start-state" class="block ms-2 text-sm font-medium text-black">
-    Start State
-  </label>
-</div>
-
-<div class="flex items-center mb-4">
-  <input id="accept-state" type="radio" name="stateType" value="accept" class="w-4 h-4 m-2 border-gray-300 focus:ring-2 focus:ring-blue-300 ${
-    acceptBool ? "selected" : ""
-  }" ${acceptBool ? "checked" : ""}>
-  <label for="accept-state" class="block ms-2 text-sm font-medium text-black">
-    Accept State
-  </label>
-</div>
-
-<div class="flex items-center mb-4">
-  <input id="reject-state" type="radio" name="stateType" value="reject" class="w-4 h-4 m-2 border-gray-300 focus:ring-2 focus:ring-blue-300 ${
-    rejectBool ? "selected" : ""
-  }" ${rejectBool ? "checked" : ""}>
-  <label for="reject-state" class="block ms-2 text-sm font-medium text-black">
-    Reject State
-  </label>
-</div>
-
-</fieldset>
-
-<div class="flex justify-center">
-<button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="clearState" >Clear State Type</button>
-</div>
-
-<div class="flex justify-center">
-<button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="deleteStateControl" >Delete State</button>
-</div>
-</div>
-
-`;
-  //Adding the html to the control div(container for the control panel)
-  document.getElementById("control").innerHTML = nodeDetails;
-
-    // Add event listeners to the radio buttons
-    document
-      .getElementById("start-state")
-      .addEventListener("change", function () {
-        makeStartState(clickedNode);
-      });
-
-    document
-      .getElementById("accept-state")
-      .addEventListener("change", function () {
-        makeAcceptState(clickedNode);
-      });
-
-    document
-      .getElementById("reject-state")
-      .addEventListener("change", function () {
-        makeRejectState(clickedNode);
-      });
-
-    // Add event listener to the input field and change the node id when the input field changes
-    document.getElementById("stateName").addEventListener("input", function () {
-      clickedNode.data("name", this.value);
-      clickedNode.style("content", this.value);
-    });
-
-    // Add event listener to the clear state button, the clear state button removes the start, accept or reject state from the node
-    document
-      .getElementById("clearState")
-      .addEventListener("click", function () {
-       clearState(clickedNode);
-       
-      });
-
-    // Add event listener to the delete button, the delete button removes the node from the graph
-    document
-      .getElementById("deleteStateControl")
-      .addEventListener("click", function () {
-        deleteNode(clickedNode);
-      });
-
+      showNodeControlPanel(e.target);
   });
 
 
 
   //Control panel for the edges
   cy.on("tap", "edge", function (e) {
-    var clickedEdge = e.target;
-
-    currentEdge = clickedEdge;
-
-    //The html for the control panel when an edge is clicked, this includes the option to add a transition, delete a transition or delete the edge
-    var edgeDetails = `
-<div class="p-2" id="${clickedEdge.id()}">
-
-<p class="text-lg text-center font-bold text-black">Edge panel</p>
-
-<button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="addTransition" >Add Transition</button>
-
-<button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="deleteTransitions" >Delete Transitions</button>
-
-<button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="deleteEdge" >Delete Edge</button>
-
-</div>
-`;
-
-    //Adding the html to the control div(container for the control panel)
-    document.getElementById("control").innerHTML = edgeDetails;
-
-    // Add event listener to the add transition button
-    document
-      .getElementById("addTransition")
-      .addEventListener("click", function () {
-        document.getElementById("modalTransition").classList.remove("hidden");
-      });
-
-    // Add event listener to the delete transition button
-    document.getElementById("deleteTransitions").addEventListener("click", function () {
-
-        document.getElementById("modalTransitionDelete").classList.remove("hidden");
-        const sourceState = clickedEdge.source().data("name");
-        const targetState = clickedEdge.target().data("name");
-        const modalTitle = `Transitions: "${sourceState}" to "${targetState}"`;
-        deleteTransitionsTitle.textContent = modalTitle;
-
-        //get all transitions stored in the edge
-        var transitions = currentEdge.data("transitions");
-        console.log(transitions);
-
-        var innerHtmlDeleteTransitions = "";
-
-        if (transitions === undefined || transitions.length === 0) {
-          document.getElementById(
-            "deleteTransitionsBody"
-          ).innerHTML = `<p class="text-center text-lg font-bold">No transitions to delete</p>`;
-          document
-            .getElementById("deleteTransitionsSubmit")
-            .classList.add("hidden");
-          return;
-        }
-
-        document.getElementById("deleteTransitionsSubmit").classList.remove("hidden");
-
-        for (var i = 0; i < transitions.length; i++) {
-          var transition = transitions[i];
-          innerHtmlDeleteTransitions += `
-  <div class="transition-item">
-    <input type="checkbox" id="transition${i}" data-index="${i}">
-    <label for="transition${i}">(${transition.currentSymbol}, ${transition.nextSymbol}, ${transition.direction})</label>
-  </div>
-`;
-        }
-
-        document.getElementById("deleteTransitionsBody").innerHTML =
-          innerHtmlDeleteTransitions;
-      });
-
-    // Add event listener to the delete edge button
-    document
-      .getElementById("deleteEdge")
-      .addEventListener("click", function () {
-        deleteEdge(clickedEdge);
-      });
+     showEdgeControlPanel(e.target);
   });
 
 
@@ -1109,7 +1286,7 @@ But we dont need to delete the transitions stored in the edge's data because the
     },
 
     {
-      content: `This is where you create transition functions for your Turing machine. You can also rename states, set the start state, accept state and reject state.To see what you can do here, click on a state to see the control panel options for that state,and click on an edge to see the control panel options for that edge. Click next to continue the tour.`,
+      content: `The control panel has has different panels depending on what is selected. When a node is selected, the control panel will show the state panel. When an edge is selected, the control panel will show the edge panel. When neither a node or edge is selected, the control panel allows you to run the Turing machine on certain input. Click next to continue the tour.`,
       title: "Control panel",
       target: "#control",
       order: 4,
@@ -1169,28 +1346,357 @@ But we dont need to delete the transitions stored in the edge's data because the
     }
   });
 
+ 
   
   //Make it so that no node being selected means that the control div is empty
   cy.on("tap", function (e) {
     if (e.target === cy) {
-      document.getElementById(
-        "control"
-      ).innerHTML = `<p class="text-center text-lg font-bold">Control Panel</p>`;
+      
+      showMainControlPanel();
+
+     
+     
+
       console.log("Current state of transition function", transitionFunction);
       console.log("Current state of initial state", initialState);
       console.log("Current state of accept state", acceptState);
       console.log("Current state of reject state", rejectState);
+
+
     }
+   
   });
 
   //When an edge is selected in general(not through a tap neccessarily), set the current edge to the edge that was selected 
     cy.on("select", "edge", function (e) {
         currentEdge = e.target;
+
+        //Update control panel
+        showEdgeControlPanel(currentEdge);
     });
 
-    // var myTm = new TuringMachine();
+    cy.on("select",function (e) {
+       //if the number nodes selected is greater than 1, then show a single delete button that deletes all in control panel, make sure button is centered
+      if(cy.$(":selected").length > 1){
+        document.getElementById("control").innerHTML = `
+        <p class="text-center text-lg font-bold">Control Panel</p>
+        <div class="flex justify-center">
+        <button class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2" type="button" id="deleteSelected" >Delete Selected</button>
+        </div>
+        `;
+
+        //Add event listener to the delete selected button
+        document.getElementById("deleteSelected").addEventListener("click", function () {
+          var selected = cy.$(":selected");
+          if (selected.length > 0) {
+            selected.forEach((ele) => {
+              if (ele.isNode()) {
+                deleteNode(ele);
+              } else if (ele.isEdge()) {
+                deleteEdge(ele);
+              }
+            });
+            //clear the control panel
+            showMainControlPanel();
+          }
+        });
+      }
+    });
+
+    async function getEdgeTransition(currentState, currentSymbol, writeSymbol, move){
+      const edge = cy.edges().filter(
+        edge => edge.source().id() === this.currentState && edge.data('transitions').some(
+        transition => transition.currentSymbol === currentSymbol && transition.nextSymbol === writeSymbol && transition.direction === move
+      ))[0];
+
+      return edge;
+    }
+
+    //Define tm class
+    class TuringMachine {
+      constructor(tape, initialState, transitionFunction, finalStates) {
+          this.tape = tape.split('');
+          this.currentIdx = 0;
+          this.currentState = initialState;
+          this.transitionFunction = transitionFunction;
+          this.finalStates = finalStates;
+          this.animationCancelled = false;
+      }
+
+      async resetNodeColors() {
+        cy.nodes().forEach(node => {
+            node.style('background-color','#999999');
+        });
+    }
+
+
+      async animateStateTransition(oldState, newState) {
+        
+      
+          // Animation for oldState
+          await new Promise((resolve, reject) => {
+              if (this.animationCancelled) {
+                //reset the node colors
+                // this.resetNodeColors();
+                  // reject(new Error('Animation cancelled'));
+                  return;
+              }
+      
+              cy.elements(`#${oldState}`).animate({
+                  style: { 'background-color': 'purple' }
+              }, {
+                  duration: 250,
+                  complete: resolve,  // Resolve the promise after animation
+                  queue: false  // Ensure animation starts immediately
+              });
+          });
+      
+        
+      
+          // Animation for newState
+          await new Promise((resolve, reject) => {
+              if (this.animationCancelled) {
+                //reset the node colors
+                // this.resetNodeColors();
+                  // reject(new Error('Animation cancelled'));
+                  return;
+              }
+      
+              cy.elements(`#${newState}`).animate({
+                  style: { 'background-color': 'red' }
+              }, {
+                  duration: 250,
+                  complete: resolve,  // Resolve the promise after animation
+                  queue: false  // Ensure animation starts immediately
+              });
+          });
+      }
+
+  
+      async step() {
+          var currentSymbol = this.tape[this.currentIdx];
+          if(currentSymbol === undefined){
+              this.tape[this.currentIdx] = '_';
+              currentSymbol = '_';
+          }
+          const stateSymbolPair = `${this.currentState},${currentSymbol}`;
+
+
+          
+          if (stateSymbolPair in this.transitionFunction) {
+              const [nextState, writeSymbol, move] = this.transitionFunction[stateSymbolPair];
+
+             
+
+              // await this.animateStateTransition(this.currentState, nextState);
+  
+              this.tape[this.currentIdx] = writeSymbol;
+              this.currentIdx += move === 'R' ? 1 : -1;
+              this.currentState = nextState;
+          } else {
+              //showAlert("Halted", `The turing machine halted. No valid transition for state ${this.currentState} and symbol ${currentSymbol}.`);
+              // document.getElementById("tmStatusDiv").classList.replace("border-black", "border-red-500")
+              // document.getElementById("tmStatus").innerHTML = ` <p class="text-center text-red-500 text-lg font-semibold" id="tmStatus">The turing machine halted. No valid transition for state "${this.currentState}" and symbol "${currentSymbol}".</p>`;
+              return false;  // No valid transition, halt
+          }
+          
+          return true;
+      }
+
+      async halt(manualHalt){
+          // //Reset the node colors
+          // await this.resetNodeColors();
+
+        
+       
+        
+
+
+        const finalTape = this.getTape();
+        const finalState = this.currentState;
+        const stateName = cy.getElementById(finalState).data('name');
+        var stateStatus = "";
+        if(cy.getElementById(finalState).data('accept')){
+          stateStatus = "accept";
+          document.getElementById("tmStatusDiv").style.borderColor = "green";
+          document.getElementById("tmStatus").innerHTML = `
+          <p class="text-center text-green-600 text-lg font-semibold" id="tmStatus">
+              <span class="text-xl font-bold">Turing machine halted.</span><br>
+              Final tape: ${finalTape}<br>
+              Final state: ${stateStatus.toUpperCase()}
+              
+          </p>`;
+
+          // //remove the halt button
+          // document.getElementById("tmhalt").classList.add("hidden");
+
+          
+
+
+        }else if(cy.getElementById(finalState).data('reject')){
+          stateStatus = "reject";
+          document.getElementById("tmStatusDiv").style.borderColor = "red";
+          document.getElementById("tmStatus").innerHTML = `
+          <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+              <span class="text-xl font-bold">Turing machine halted.</span><br>
+              Final tape: ${finalTape}<br>
+              Final state: ${stateStatus.toUpperCase()}
+          </p>`;
+
+          // //remove the halt button
+          // document.getElementById("tmhalt").classList.add("hidden");
+
+
+        }else if(!cy.getElementById(finalState).data('accept') && !cy.getElementById(finalState).data('reject') && !manualHalt){
+          stateStatus = "halt";
+          document.getElementById("tmStatusDiv").style.borderColor = "red";
+          document.getElementById("tmStatus").innerHTML = `
+          <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">The turing machine halted. No valid transition for state "${stateName}" and symbol "${this.tape[this.currentIdx]}".</p>
+          <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+              Final tape: ${finalTape}<br>
+              Final state: ${stateName}
+          </p>`;
+
+          // //remove the halt button
+          // document.getElementById("tmhalt").classList.add("hidden");
+
+          
+        }else if(manualHalt){
+          stateStatus = "halt";
+          document.getElementById("tmStatusDiv").style.borderColor = "red";
+          document.getElementById("tmStatus").innerHTML = `
+          <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">The turing machine was manually halted.</p>
+          <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+              Final tape: ${finalTape}<br>
+              Final state: ${stateName}
+          </p>`;
+
+          // //remove the halt button
+          // document.getElementById("tmhalt").classList.add("hidden");
+
+       
+
+        }
+
+          
+        //Cancel the animation last
+        this.animationCancelled = true;
+
+
+
+       }
+  
+    
+      async run() {
+ 
+        //Reset the node colors
+        // await this.resetNodeColors();
+         
+
+          while (!this.finalStates.includes(this.currentState)) {
+            const result = await this.step();
+              if (!result) {
+                  break;
+              }
+          }
+
+          this.halt(false);
+      }
+  
+      getTape() {
+          return this.tape.join('');
+      }
+
+  }
+
+ 
+  
+  //Add event listeners to main control panel after initial load, when main control panel added dynamically, event listeners are added dynamically as well(see showMainControlPanel function)
+  
+ 
+   
+
+
+  var runTm = document.getElementById("runtm");
+  
+  runTm.addEventListener("click", function () {
 
    
+   
+    // Get the input string from the input field  
+    var input = document.getElementById("tminput").value;
+
+       if(input === ""){
+        
+        document.getElementById("tmStatusDiv").style.borderColor = "red";
+        document.getElementById("tmStatus").innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+        Please enter an input string.
+        </p>`;
+        return;
+      }
+       if(initialState === null){
+          document.getElementById("tmStatusDiv").style.borderColor = "red";
+          document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+          Please select a start state.
+          </p>`;
+          
+         return;
+       }
+       if(acceptState === null){
+          document.getElementById("tmStatusDiv").style.borderColor = "red";
+          document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+          Please select an accept state.
+          </p>`;
+        
+         return;
+       }
+       if(rejectState === null){
+          document.getElementById("tmStatusDiv").style.borderColor = "red";
+          document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+          Please select a reject state.
+          </p>`;
+         return;
+       }
+
+       //Reset the status div
+        document.getElementById("tmStatus").innerHTML = "";
+        document.getElementById("tmStatusDiv").style.borderColor = "#FAF0E6";
+
+
+
+      //  //Split the input string into an array
+      //  input = input.split('');
+
+      //  input.forEach((symbol) => {
+      //   document.getElementById("tape").innerHTML += `<div class=" tape-cell" id="${symbol}">${symbol}</div>`;
+      //   });
+
+
+       
+
+
+       var initState = initialState;
+       var finalStates = [acceptState, rejectState];
+       var transitions = transitionFunction;
+ 
+       var tm = new TuringMachine(input, initState, transitions, finalStates);
+
+       tm.run();
+
+      //  //Add a halt button to stop the turing machine
+      //  document.getElementById("tmhalt").classList.remove("hidden");
+
+      //  //Add event listener to the halt button
+      //   stopTm.addEventListener("click", function () {
+      //     tm.halt(true);
+      //   });
+        
+ 
+
+     });
+ 
+     
+  
   /////Extra things end here////
 
  
