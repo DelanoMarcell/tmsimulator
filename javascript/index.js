@@ -1692,15 +1692,16 @@ document.getElementById('importJson').addEventListener('click', function() {
   document.getElementById('importJsonBtn').click();
 });
 
-document.getElementById("importJsonBtn").addEventListener("change", function (e) {
+document.getElementById("importJsonBtn").addEventListener("change", async function (e) {
   const file = e.target.files[0];
   const reader = new FileReader();
-  reader.onload = function (e) {
+  reader.onload = async function (e) {
     const json = JSON.parse(e.target.result);
     // console.log("imported json", json.elements);
 
+    //clear the graph first
+    await cy.elements().remove();
 
-    cy.json(json);
 
     //make start state
     initialState = json.startState;
@@ -1750,9 +1751,13 @@ document.getElementById("importJsonBtn").addEventListener("change", function (e)
     // console.log("imported accept state", acceptState);
     // console.log("imported reject state", rejectState);
 
+    await cy.json(json);
+
     makeStartState(cy.$("#" + initialState));
     makeAcceptState(cy.$("#" + acceptState));
     makeRejectState(cy.$("#" + rejectState));
+
+   
      
   };
   reader.readAsText(file);
