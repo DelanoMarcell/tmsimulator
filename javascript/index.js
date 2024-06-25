@@ -1838,5 +1838,11 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
 );
 
 
+//Make navbar collapsable on mobile
+document.getElementById("navbarToggle").addEventListener("click", function () {
+  document.getElementById("navbarMobile").classList.toggle("hidden");
+}
+);
+
 
 });///document ready end here
