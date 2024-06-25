@@ -69,7 +69,57 @@
         from { transform: translateX(0); }
         to { transform: translateX(-52px); }
     }
+
+    /*Loader*/
  
+    .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Darken background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+           
+             /* Ensure it is above other content */
+        }
+
+        .loader {
+            --height-of-loader: 4px;
+            --loader-color: #111827;
+            width: 130px;
+            height: var(--height-of-loader);
+            border-radius: 30px;
+            background-color: rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .loader::before {
+            content: "";
+            position: absolute;
+            background: var(--loader-color);
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            border-radius: 30px;
+            animation: moving 1s ease-in-out infinite;
+        }
+
+        @keyframes moving {
+            50% {
+                width: 100%;
+            }
+            100% {
+                width: 0;
+                right: 0;
+                left: unset;
+            }
+        }
 
   </style>
 
@@ -204,6 +254,11 @@ data-twe-navbar-ref>
 </nav>
   
   </header>
+
+  
+  <div id="overlay" class="overlay">
+    <div class="loader"></div>
+</div>
 
 <!--Various buttons that are found above the canvas-->
 

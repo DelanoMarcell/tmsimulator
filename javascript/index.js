@@ -460,7 +460,7 @@ But we dont need to delete the transitions stored in the edge's data because the
       </p>`;
       return;
     }
-     if(initialState === null){
+     if(initialState === null || initialState === undefined){
       document.getElementById("tmStatusDiv").style.borderColor = "red";
         document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
         Please select a start state.
@@ -468,7 +468,7 @@ But we dont need to delete the transitions stored in the edge's data because the
         
        return;
      }
-     if(acceptState === null){
+     if(acceptState === null || acceptState === undefined){
       document.getElementById("tmStatusDiv").style.borderColor = "red";
         document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
         Please select an accept state.
@@ -476,7 +476,7 @@ But we dont need to delete the transitions stored in the edge's data because the
       
        return;
      }
-     if(rejectState === null){
+     if(rejectState === null || rejectState === undefined){
       document.getElementById("tmStatusDiv").style.borderColor = "red";
         document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
         Please select a reject state.
@@ -1579,7 +1579,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
         </p>`;
         return;
       }
-       if(initialState === null){
+       if(initialState === null || initialState === undefined){
           document.getElementById("tmStatusDiv").style.borderColor = "red";
           document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
           Please select a start state.
@@ -1587,7 +1587,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
           
          return;
        }
-       if(acceptState === null){
+       if(acceptState === null || acceptState === undefined){
           document.getElementById("tmStatusDiv").style.borderColor = "red";
           document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
           Please select an accept state.
@@ -1595,7 +1595,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
         
          return;
        }
-       if(rejectState === null){
+       if(rejectState === null || rejectState === undefined){
           document.getElementById("tmStatusDiv").style.borderColor = "red";
           document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
           Please select a reject state.
@@ -1712,7 +1712,13 @@ document.getElementById("exportAsJson").addEventListener("click", function () {
 });
 
 
+function showLoader() {
+  document.getElementById('overlay').style.display = 'flex';
+}
 
+function hideLoader() {
+  document.getElementById('overlay').style.display = 'none';
+}
 
 //Import json
 // Trigger file input click on link click
@@ -1721,11 +1727,19 @@ document.getElementById('importJson').addEventListener('click', function() {
 });
 
 document.getElementById("importJsonBtn").addEventListener("change", async function (e) {
+
+  //Show loader
+ showLoader();
+
+
+
+
   const fileInput = e.target;
   const file = fileInput.files[0];
  
 
   if(!file){
+    hideLoader();
     return;
   }
 
@@ -1740,6 +1754,7 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
           durations: { info: 5000 },
           labels: { info: "Invalid File" }
       });
+      hideLoader();
       return;
   }
 
@@ -1749,9 +1764,15 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
           durations: { info: 5000 },
           labels: { info: "Empty File" }
       });
+      hideLoader();
       return;
 
   }
+
+   //make start state
+   initialState = json.startState;
+   acceptState = json.acceptState;
+   rejectState = json.rejectState;
   
     // alert("json found", json );
     // console.log("imported json", json);
@@ -1762,11 +1783,10 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
     }
    
 
+    console.log("The values of initial state, accept state and reject state are", json.startState, json.acceptState, json.rejectState)
 
-    //make start state
-    initialState = json.startState;
-    acceptState = json.acceptState;
-    rejectState = json.rejectState;
+
+   
 
     //add the transition function
     transitionFunction = json.transitionFunction;
@@ -1797,7 +1817,7 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
 
       // Update the edge data with all transitions
       edge.data("transitions", transitions);
-    }
+
       // Update the edge label
       var label = transitions
         .map((t) => `(${t.currentSymbol}, ${t.nextSymbol}, ${t.direction})`)
@@ -1811,6 +1831,8 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
         "text-background-color": "#999999",  
         "text-background-opacity": 0.8, 
       });
+    }
+      
     });
 
     // console.log("imported transition function", transitionFunction);
@@ -1818,13 +1840,25 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
     // console.log("imported accept state", acceptState);
     // console.log("imported reject state", rejectState);
 
-   
+    if(initialState != null){
+      makeStartState(cy.$("#" + initialState));
+    }
+    if(acceptState != null){
+      makeAcceptState(cy.$("#" + acceptState));
+    }
+    if(rejectState != null){
+      makeRejectState(cy.$("#" + rejectState));
+    }
 
-    makeStartState(cy.$("#" + initialState));
-    makeAcceptState(cy.$("#" + acceptState));
-    makeRejectState(cy.$("#" + rejectState));
+   
+    
+    // makeStartState(cy.$("#" + initialState));
+    // makeAcceptState(cy.$("#" + acceptState));
+    // makeRejectState(cy.$("#" + rejectState));
 
     notifier.info("Turing machine imported successfully", {durations: {success: 2000}, labels: {info: "Imported"}});
+
+    hideLoader();
   
 
    
