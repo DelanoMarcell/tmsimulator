@@ -6,7 +6,8 @@ document.addEventListener("DOMContentLoaded", function () {
   //Define global variable(Current Selected Edge)
   var currentEdge = null;
 
- 
+ //
+ let notifier = new AWN();
   
 
   //define global variables for tm
@@ -237,7 +238,10 @@ Alert functionality, to show users messages when they perform certain actions
     var outgoingEdges = cy.edges(`[source = "${ele.id()}"]`);
 
     if(outgoingEdges.length > 0){
-      showAlert("That's a halt state!", "Accept states cannot have outgoing edges.");
+      
+      notifier.info("Accept states cannot have outgoing edges. Remove any outgoing edges from this state first.", {durations: {info: 3000}, labels: {info: "Oops!"}});
+
+
       //clear the control panel selected radios
       document.getElementById("accept-state").checked = false;
       return;
@@ -277,7 +281,9 @@ Alert functionality, to show users messages when they perform certain actions
      var outgoingEdges = cy.edges(`[source = "${ele.id()}"]`);
 
      if(outgoingEdges.length > 0){
-       showAlert("That's a halt state!", "Reject states cannot have outgoing edges.");
+      notifier.info("Reject states cannot have outgoing edges. Remove any outgoing edges from this state first.", {durations: {info: 3000}, labels: {info: "Oops!"}});
+
+
        //clear the control panel selected radios
         document.getElementById("reject-state").checked = false;
        return;
@@ -1637,23 +1643,41 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
 
   window.addEventListener('click', function(event) {
   if (!event.target.matches('#dropdownMenuButton')) {
-    document.getElementById("dropdownMenuArea").classList.add('hidden');
+    if(!document.getElementById("dropdownMenuArea").classList.contains('hidden')){
+     document.getElementById("dropdownMenuArea").classList.add('hidden');
+    }
+
+  
   }
 });
 
 //export as png
 document.getElementById("exportAsPng").addEventListener("click", function () {
+
+  if(cy.elements().length === 0){
+    notifier.info("The canvas is empty. Please create a Turing machine before exporting.", {durations: {info: 3000}, labels: {info: "Empty Canvas"}});
+    return;
+  }
+
   var png64 = cy.jpeg();
   var a = document.createElement("a");
   a.href = png64;
   a.download = "turing-machine.png";
   a.click();
+
+  notifier.info("PNG exported successfully!", {durations: {info: 2000}, labels: {info: "Exported"}});
 }
 );
 
 
 //export as json
 document.getElementById("exportAsJson").addEventListener("click", function () {
+   //Check if the graph is empty
+  if(cy.elements().length === 0){
+    notifier.info("The canvas is empty. Please create a Turing machine before exporting.", {durations: {info: 3000}, labels: {info: "Empty Canvas"}});
+    return;
+  }
+
   // Function to get the current styles of all elements
   function getAllElementStyles(cy) {
     cy.elements().forEach(ele => {
@@ -1669,6 +1693,7 @@ document.getElementById("exportAsJson").addEventListener("click", function () {
 
   // Create the JSON object to export
   const json = {
+    identifier:"tmSimulatorDelanoMartin",
     elements: elements,
     transitionFunction: transitionFunction,
     startState: initialState,
@@ -1681,6 +1706,9 @@ document.getElementById("exportAsJson").addEventListener("click", function () {
   a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
   a.download = "turing-machine.json";
   a.click();
+
+  notifier.info("JSON exported successfully", {durations: {info: 2000}, labels: {info: "Exported"}});
+
 });
 
 
@@ -1705,6 +1733,26 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
   const reader = new FileReader();
   reader.onload = async function (e) {
     const json = JSON.parse(e.target.result);
+
+    //check if the json file is a tm simulator json file
+    if (json.identifier !== "tmSimulatorDelanoMartin") {
+      notifier.info("The imported JSON file is not recognized. Please make sure you are using a file exported from our platform that contains the necessary Turing machine data.", {
+          durations: { info: 5000 },
+          labels: { info: "Invalid File" }
+      });
+      return;
+  }
+
+  //check if tm data is empty
+  if (json.elements.length === 0) {
+      notifier.info("The imported JSON file does not contain any Turing machine data. Please make sure you are using a file exported from our platform that contains the necessary Turing machine data.", {
+          durations: { info: 5000 },
+          labels: { info: "Empty File" }
+      });
+      return;
+
+  }
+  
     // alert("json found", json );
     // console.log("imported json", json);
 
@@ -1724,6 +1772,7 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
     transitionFunction = json.transitionFunction;
 
     await cy.json(json);
+    await cy.fit();
 
    
     // Add the transition function to the edges
@@ -1731,10 +1780,10 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
       var sourceId = edge.source().id();
       var targetId = edge.target().id();
 
-      if (!edge.data("transitions")) {
-        edge.data("transitions", []);
-      }
-
+      // if (!edge.data("transitions")) {
+      //   edge.data("transitions", []);
+      // }
+      if(edge.data("transitions")){
       // Get all transitions for this edge
       var transitions = edge.data("transitions").map(t => {
         var transitionId = sourceId + "," + t.currentSymbol;
@@ -1748,7 +1797,7 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
 
       // Update the edge data with all transitions
       edge.data("transitions", transitions);
-
+    }
       // Update the edge label
       var label = transitions
         .map((t) => `(${t.currentSymbol}, ${t.nextSymbol}, ${t.direction})`)
@@ -1775,6 +1824,9 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
     makeAcceptState(cy.$("#" + acceptState));
     makeRejectState(cy.$("#" + rejectState));
 
+    notifier.info("Turing machine imported successfully", {durations: {success: 2000}, labels: {info: "Imported"}});
+  
+
    
      
   };
@@ -1784,5 +1836,7 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
   fileInput.value = null;
 }
 );
+
+
 
 });///document ready end here
