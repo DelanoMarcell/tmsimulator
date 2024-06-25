@@ -1693,14 +1693,26 @@ document.getElementById('importJson').addEventListener('click', function() {
 });
 
 document.getElementById("importJsonBtn").addEventListener("change", async function (e) {
-  const file = e.target.files[0];
+  const fileInput = e.target;
+  const file = fileInput.files[0];
+ 
+
+  if(!file){
+    return;
+  }
+
+
   const reader = new FileReader();
   reader.onload = async function (e) {
     const json = JSON.parse(e.target.result);
-    // console.log("imported json", json.elements);
+    // alert("json found", json );
+    // console.log("imported json", json);
 
-    //clear the graph first
-    await cy.elements().remove();
+    //clear the graph first if elements exist
+    if (cy.elements().length > 0) {
+      await cy.elements().remove();
+    }
+   
 
 
     //make start state
@@ -1718,6 +1730,10 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
     cy.edges().forEach((edge) => {
       var sourceId = edge.source().id();
       var targetId = edge.target().id();
+
+      if (!edge.data("transitions")) {
+        edge.data("transitions", []);
+      }
 
       // Get all transitions for this edge
       var transitions = edge.data("transitions").map(t => {
@@ -1763,6 +1779,9 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
      
   };
   reader.readAsText(file);
+
+  // Reset the value of the file input after processing the file
+  fileInput.value = null;
 }
 );
 
