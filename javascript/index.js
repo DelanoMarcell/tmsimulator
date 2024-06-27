@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", function () {
   var acceptState = null;
   var rejectState = null;
 
+  var headPosition = 0;
+
   var transitionFunction = {};
 
   // Cytoscape initialisation
@@ -310,6 +312,24 @@ Alert functionality, to show users messages when they perform certain actions
 
     rejectState = ele.id();
   }
+
+  function scrollToCurrentCell() {
+    const container = document.getElementById('tape-container');
+    const currentCell = document.querySelector('.current-cell');
+
+    if (currentCell) {
+        const containerRect = container.getBoundingClientRect();
+        const currentCellRect = currentCell.getBoundingClientRect();
+
+        // Check if the current cell is outside the visible area of the container
+        if (currentCellRect.left < containerRect.left || currentCellRect.right > containerRect.right) {
+            // Scroll the container to center the current cell
+            container.scrollLeft = currentCell.offsetLeft - (container.clientWidth / 2) + (currentCell.clientWidth / 2);
+        }
+    }
+}
+
+
     
 
   //Function to clear the state of a node, meaning that it is no longer a start, accept or reject state
@@ -407,6 +427,80 @@ But we dont need to delete the transitions stored in the edge's data because the
     console.log(transitionFunction);
   }
 
+  function RenderTape(input, currentIndex = 0){
+
+
+    var tapeContainer = document.getElementById('tape');
+    var tape = input;
+
+    tapeContainer.innerHTML = ''; // Clear the existing tape display
+
+    tape.forEach((symbol, index) => {
+      const cell = document.createElement('div');
+      cell.className = 'tape-cell';
+      cell.textContent = symbol;
+      if (index === currentIndex) {
+        cell.classList.add('current-cell');
+      }
+      tapeContainer.appendChild(cell);
+    });
+  }
+
+  cy.style()
+  .selector('.highlightedEdge')
+  .style({
+    'line-color': 'red',
+    'target-arrow-color': 'red'
+  })
+  .update();
+
+  cy.style()
+  .selector('.highlightedNode')
+  .style({
+    'background-color': 'red',
+  
+  })
+
+  function RenderCurrentOnTm(currentState, nextState, currentSymbol, delay) {
+    // Get edge based on currentState and nextState
+    var Edge = cy.edges(`[source = "${currentState}"][target = "${nextState}"]`);
+    var Source = cy.nodes(`[id = "${currentState}"]`);
+
+    // Highlight the edge
+    Edge.addClass('highlightedEdge');
+    
+    //Highlight the current state
+    Source.addClass('highlightedNode');
+
+    // Save the original label style
+    const originalLabel = Edge.style("label");
+    const originalTextBackgroundColor = Edge.style("text-background-color");
+
+    // Highlight the label on the edge corresponding to the current symbol
+    var transitions = originalLabel.split(",");
+    for (var i = 0; i < transitions.length; i += 3) {
+        var transition = transitions[i];
+        if (transition.includes(currentSymbol)) {
+            Edge.style({
+                "label": transitions[i] + "," + transitions[i + 1] + "," + transitions[i + 2],
+                "text-background-color": "red"
+            });
+        }
+    }
+
+
+    // Unhighlight the edge and revert to original label styles after a short time
+    setTimeout(() => {
+        Edge.removeClass('highlightedEdge');
+        Source.removeClass('highlightedNode');
+        Edge.style({
+            "label": originalLabel,
+            "text-background-color": originalTextBackgroundColor
+        });
+    }, delay);
+}
+
+
   function showMainControlPanel(){
 
     var tmInput = "";
@@ -444,13 +538,22 @@ But we dont need to delete the transitions stored in the edge's data because the
     // //Add event listener to the stop tm button
     // var stopTm = document.getElementById("tmhalt");
 
+    //Create function out of this code
+    
+  
+
 
   //Run tm machine button
   var runTm = document.getElementById("runtm");
+
   
    runTm.addEventListener("click", function () {
      // Get the input string from the input field  
      var input = document.getElementById("tminput").value;
+
+     var TapeInput = input.split("");
+
+
 
      if(input === ""){
         
@@ -460,6 +563,10 @@ But we dont need to delete the transitions stored in the edge's data because the
       </p>`;
       return;
     }
+
+    // RenderTape(TapeInput);
+
+
      if(initialState === null || initialState === undefined){
       document.getElementById("tmStatusDiv").style.borderColor = "red";
         document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
@@ -493,18 +600,27 @@ But we dont need to delete the transitions stored in the edge's data because the
      var finalStates = [acceptState, rejectState];
      var transitions = transitionFunction;
 
-     var tm = new TuringMachine(input, initState, transitions, finalStates);
+     var tm = new TuringMachine(input, initState, transitions, finalStates, 500);
 
 
      tm.run();
 
-    // //Add a halt button to stop the turing machine
-    // document.getElementById("tmhalt").classList.remove("hidden");
+     var stopTm = document.getElementById("tmhalt");
 
-    // //Add event listener to the stop tm button
-    // stopTm.addEventListener("click", function () {
-    //   tm.halt(true);
-    // });
+    //Add a halt button to stop the turing machine
+    document.getElementById("tmhalt").classList.remove("hidden");
+
+    //Add event listener to the stop tm button
+    stopTm.addEventListener("click", function () {
+      tm.halt(true);
+      tm.haltFlag = true;
+
+       //Clear the tape
+       RenderTape([], 0);
+
+       //Remove the halt button
+       document.getElementById("tmhalt").classList.add("hidden");
+    });
 
   
 
@@ -1428,17 +1544,21 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
 
     //Define tm class
     class TuringMachine {
-      constructor(tape, initialState, transitionFunction, finalStates) {
+      constructor(tape, initialState, transitionFunction, finalStates, delay) {
           this.tape = tape.split('');
           this.currentIdx = 0;
           this.currentState = initialState;
           this.transitionFunction = transitionFunction;
           this.finalStates = finalStates;
+          this.delay = delay;
+          this.haltFlag = false;
       
       }
 
 
       async step() {
+      
+
           var currentSymbol = this.tape[this.currentIdx];
           if(currentSymbol === undefined){
               this.tape[this.currentIdx] = '_';
@@ -1451,17 +1571,32 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
           if (stateSymbolPair in this.transitionFunction) {
               const [nextState, writeSymbol, move] = this.transitionFunction[stateSymbolPair];
 
-             
+                
+              //Update the tape but should have a delay to show the user the transition
 
-              // await this.animateStateTransition(this.currentState, nextState);
+              await new Promise(resolve => setTimeout(resolve, this.delay));
+              if(this.haltFlag){
+                return;
+              }
+              RenderTape(this.tape, this.currentIdx);
+              RenderCurrentOnTm(this.currentState, nextState, currentSymbol, this.delay);
+
   
+
               this.tape[this.currentIdx] = writeSymbol;
               this.currentIdx += move === 'R' ? 1 : -1;
+
+            
               this.currentState = nextState;
+
+         
+
           } else {
               //showAlert("Halted", `The turing machine halted. No valid transition for state ${this.currentState} and symbol ${currentSymbol}.`);
               // document.getElementById("tmStatusDiv").classList.replace("border-black", "border-red-500")
               // document.getElementById("tmStatus").innerHTML = ` <p class="text-center text-red-500 text-lg font-semibold" id="tmStatus">The turing machine halted. No valid transition for state "${this.currentState}" and symbol "${currentSymbol}".</p>`;
+              // RenderTape(this.tape, this.currentIdx);
+              // RenderCurrentOnTm(this.currentState, nextState, currentSymbol, this.delay);
               return false;  // No valid transition, halt
           }
           
@@ -1469,6 +1604,13 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
       }
 
       async halt(manualHalt){
+
+        //Enable user interaction with cytoscape(change it so that user interaction is enabled after the halt function is called, not here)
+       document.getElementById('cy').style.pointerEvents = 'auto';
+       document.getElementById("tminput").style.pointerEvents = 'auto';
+       document.getElementById("runtm").style.pointerEvents = 'auto';
+
+        
         
 
 
@@ -1480,36 +1622,56 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
           stateStatus = "accept";
           document.getElementById("tmStatusDiv").style.borderColor = "green";
           document.getElementById("tmStatus").innerHTML = `
-          <p class="text-center text-green-600 text-lg font-semibold" id="tmStatus">
+          <p class="text-center text-green-600 text-lg font-semibold break-words" id="tmStatus">
               <span class="text-xl font-bold">Turing machine halted.</span><br>
               Final tape: ${finalTape}<br>
               Final state: ${stateStatus.toUpperCase()} 
           </p>`;
 
+          // //Clear the tape
+          // RenderTape([], 0);
+
+          //Hide the halt button
+          document.getElementById("tmhalt").classList.add("hidden");
+
+      
       
 
         }else if(cy.getElementById(finalState).data('reject')){
           stateStatus = "reject";
           document.getElementById("tmStatusDiv").style.borderColor = "red";
           document.getElementById("tmStatus").innerHTML = `
-          <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
-              <span class="text-xl font-bold">Turing machine halted.</span><br>
-              Final tape: ${finalTape}<br>
-              Final state: ${stateStatus.toUpperCase()}
-          </p>`;
+          <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">
+          <span class="text-xl font-bold">Turing machine halted.</span><br>
+          Final tape: ${finalTape}<br>
+          Final state: ${stateStatus.toUpperCase()}
+      </p>`;
 
-      
+      // //Clear the tape
+      // RenderTape([], 0);
+
+      //Hide the halt button
+      document.getElementById("tmhalt").classList.add("hidden");
+
+    
 
         }else if(!cy.getElementById(finalState).data('accept') && !cy.getElementById(finalState).data('reject') && !manualHalt){
           stateStatus = "halt";
           document.getElementById("tmStatusDiv").style.borderColor = "red";
           document.getElementById("tmStatus").innerHTML = `
-          <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">The turing machine halted. No valid transition for state "${stateName}" and symbol "${this.tape[this.currentIdx]}".</p>
+          <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">The turing machine halted. No valid transition for state "${stateName}" and symbol "${this.tape[this.currentIdx]}".</p>
           <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
               Final tape: ${finalTape}<br>
               Final state: ${stateName}<br>
               Status: REJECT
           </p>`;
+
+          //Clear the tape
+          RenderTape([], 0);
+
+          //Hide the halt button
+          document.getElementById("tmhalt").classList.add("hidden");
+
 
 
           
@@ -1524,28 +1686,36 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
           </p>`;
 
         }
+ 
 
-          
-     
+        //ALREADY CLEARED AND REMOVED HALT BUTTON IN THE ONCLICK EVENT OF THE HALT BUTTON
+
 
 
        }
   
     
       async run() {
- 
-        //Reset the node colors
-        // await this.resetNodeColors();
-         
 
-          while (!this.finalStates.includes(this.currentState)) {
+    //Disable user interaction with cytoscape
+     document.getElementById('cy').style.pointerEvents = 'none';
+     document.getElementById("tminput").style.pointerEvents = 'none';
+    document.getElementById("runtm").style.pointerEvents = 'none';
+
+
+          while (!this.finalStates.includes(this.currentState) && !this.haltFlag) {
             const result = await this.step();
               if (!result) {
                   break;
               }
           }
 
-          this.halt(false);
+          if(!this.haltFlag){
+            this.halt(false);
+          }
+
+          
+
       }
   
       getTape() {
@@ -1560,9 +1730,12 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
   
  
    
+   
+  
 
 
   var runTm = document.getElementById("runtm");
+
   
   runTm.addEventListener("click", function () {
 
@@ -1570,6 +1743,8 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
    
     // Get the input string from the input field  
     var input = document.getElementById("tminput").value;
+
+    var TapeInput = input.split("");
 
        if(input === ""){
         
@@ -1579,6 +1754,10 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
         </p>`;
         return;
       }
+
+      // RenderTape(TapeInput);
+
+
        if(initialState === null || initialState === undefined){
           document.getElementById("tmStatusDiv").style.borderColor = "red";
           document.getElementById("tmStatus").innerHTML= `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
@@ -1617,17 +1796,30 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
        var finalStates = [acceptState, rejectState];
        var transitions = transitionFunction;
  
-       var tm = new TuringMachine(input, initState, transitions, finalStates);
+       var tm = new TuringMachine(input, initState, transitions, finalStates, 500);
 
        tm.run();
 
-      //  //Add a halt button to stop the turing machine
-      //  document.getElementById("tmhalt").classList.remove("hidden");
+       var stopTm = document.getElementById("tmhalt");
 
-      //  //Add event listener to the halt button
-      //   stopTm.addEventListener("click", function () {
-      //     tm.halt(true);
-      //   });
+       //Add a halt button to stop the turing machine
+       document.getElementById("tmhalt").classList.remove("hidden");
+
+
+    
+
+
+       //Add event listener to the halt button
+        stopTm.addEventListener("click", function () {
+          tm.halt(true);
+          tm.haltFlag = true;
+
+          //Clear the tape
+          RenderTape([], 0);
+
+          //Remove the halt button
+          document.getElementById("tmhalt").classList.add("hidden");
+        });
         
  
      });
@@ -1641,6 +1833,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
     document.getElementById("dropdownMenuArea").classList.toggle("hidden");
   });
 
+ 
   window.addEventListener('click', function(event) {
   if (!event.target.matches('#dropdownMenuButton')) {
     if(!document.getElementById("dropdownMenuArea").classList.contains('hidden')){

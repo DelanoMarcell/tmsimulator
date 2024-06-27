@@ -15,6 +15,8 @@
   <script src="./javascript/cedge.js"></script>
   <script src="./javascript/cctx.js"></script>
   <script src="./javascript/tour.js"></script>
+  <script src="./javascript/popper.min.js"></script>
+  <script src="./javascript/tippy-bundle.umd.min.js"></script>
   
 
 
@@ -39,8 +41,8 @@
 
 .tape-cell {
   display: inline-block;
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   border: 1px solid #000;
   text-align: center;
   line-height: 30px; /* vertically center the text */
@@ -49,26 +51,10 @@
 }
 
 .current-cell {
-        background-color: yellow;
-    }
+        background-color: red;
+  }
 
-    .move-right {
-        animation: moveRight 0.5s forwards;
-    }
-
-    .move-left {
-        animation: moveLeft 0.5s forwards;
-    }
-
-    @keyframes moveRight {
-        from { transform: translateX(0); }
-        to { transform: translateX(52px); }
-    }
-
-    @keyframes moveLeft {
-        from { transform: translateX(0); }
-        to { transform: translateX(-52px); }
-    }
+    
 
     /*Loader*/
  
@@ -204,6 +190,7 @@ data-twe-navbar-ref>
         <a
           class="flex items-center text-black/60 transition duration-200 hover:text-black/80 hover:ease-in-out focus:text-black/80 active:text-black/80 motion-reduce:transition-none dark:text-white/60 dark:hover:text-white/80 dark:focus:text-white/80 dark:active:text-white/80 lg:px-2"
           href="#"
+          
           type="button"
           id="dropdownMenuButton"
           data-twe-dropdown-toggle-ref
@@ -244,7 +231,11 @@ data-twe-navbar-ref>
               >Export as JSON</a
             >
           </li>
-          
+          <!-- <script defer>
+            tippy('#exportAsJson', {
+        content: 'Allows you to share your Turing machine with others!',
+      });
+          </script> -->
         </ul>
       </li>
      
@@ -303,6 +294,9 @@ data-twe-navbar-ref>
           <button
             class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
             type="button" id="runtm">Run</button>
+            <button
+            class="hidden text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
+            type="button" id="tmhalt">Stop</button>
         </div>
 
         <div id="tmStatusDiv" class=" border-[#FAF0E6] border-2 border-dashed m-2 rounded-md">
@@ -316,12 +310,9 @@ data-twe-navbar-ref>
     </div>
 
     <!-- Tape Panel -->
-    <div id="tape" class="border-2 border-[#111827] border-dashed rounded-md mt-1 p-1">
-      
-     
-     
-       
-  <!-- Add more cells as needed -->
+    <div id="tape" id="tape-container" class="border-2 border-[#111827] border-dashed rounded-md mt-1 p-1">
+    
+    
     </div>
   </div>
 
