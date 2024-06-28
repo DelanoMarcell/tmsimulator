@@ -1715,7 +1715,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
           document.getElementById("tmStatusDiv").style.borderColor = "red";
           document.getElementById("tmStatus").innerHTML = `
         
-          <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">The turing machine halted. No valid transition for state "${stateName}" and symbol "${this.tape[this.currentIdx]}".</p>
+          <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">The turing machine halted. No valid transition for state "${stateName}" and symbol "${this.tape.get(this.currentIdx)}".</p>
           <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">
               Final tape: ${finalTape}<br>
               Final state: ${stateName}<br>
@@ -1745,8 +1745,6 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
  
 
         //ALREADY CLEARED AND REMOVED HALT BUTTON IN THE ONCLICK EVENT OF THE HALT BUTTON
-
-
 
        }
   
