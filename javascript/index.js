@@ -518,6 +518,16 @@ But we dont need to delete the transitions stored in the edge's data because the
         <label for="tm" class="text-center text-lg font-semibold">Tape input:</label>
         <input type="text" name="tm" id="tminput" autocomplete="tm" value="${tmInput}"
           class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
+
+          <label for="speed" class="text-center text-lg font-semibold mt-2">Animation Speed:</label>
+          <select id="speed" class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
+          <option value="3500">Slower</option>
+            <option value="1000">Slow</option>
+            <option value="500">Medium</option>
+            <option value="250" selected>Fast</option>
+            <option value="150">Faster</option>
+            <option value="0">Instant</option>
+          </select>
           
         <button
           class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
@@ -600,7 +610,9 @@ But we dont need to delete the transitions stored in the edge's data because the
      var finalStates = [acceptState, rejectState];
      var transitions = transitionFunction;
 
-     var tm = new TuringMachine(input, initState, transitions, finalStates, 500);
+     var speed = document.getElementById("speed").value;
+
+     var tm = new TuringMachine(input, initState, transitions, finalStates, speed);
 
 
      tm.run();
@@ -1574,13 +1586,22 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
                 
               //Update the tape but should have a delay to show the user the transition
 
-              await new Promise(resolve => setTimeout(resolve, this.delay));
+              //console.log("Delay is ", this.delay)
+
+              if(this.delay != 0){
+                await new Promise(resolve => setTimeout(resolve, this.delay));
+              }
+
               if(this.haltFlag){
                 return;
               }
-              RenderTape(this.tape, this.currentIdx);
-              RenderCurrentOnTm(this.currentState, nextState, currentSymbol, this.delay);
 
+              if(this.delay!=0){
+                RenderTape(this.tape, this.currentIdx);
+                RenderCurrentOnTm(this.currentState, nextState, currentSymbol, this.delay);
+
+              }
+             
   
 
               this.tape[this.currentIdx] = writeSymbol;
@@ -1592,11 +1613,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
          
 
           } else {
-              //showAlert("Halted", `The turing machine halted. No valid transition for state ${this.currentState} and symbol ${currentSymbol}.`);
-              // document.getElementById("tmStatusDiv").classList.replace("border-black", "border-red-500")
-              // document.getElementById("tmStatus").innerHTML = ` <p class="text-center text-red-500 text-lg font-semibold" id="tmStatus">The turing machine halted. No valid transition for state "${this.currentState}" and symbol "${currentSymbol}".</p>`;
-              // RenderTape(this.tape, this.currentIdx);
-              // RenderCurrentOnTm(this.currentState, nextState, currentSymbol, this.delay);
+              
               return false;  // No valid transition, halt
           }
           
@@ -1605,7 +1622,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
 
       async halt(manualHalt){
 
-        //Enable user interaction with cytoscape(change it so that user interaction is enabled after the halt function is called, not here)
+      //Enable user interaction 
        document.getElementById('cy').style.pointerEvents = 'auto';
        document.getElementById("tminput").style.pointerEvents = 'auto';
        document.getElementById("runtm").style.pointerEvents = 'auto';
@@ -1659,8 +1676,9 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
           stateStatus = "halt";
           document.getElementById("tmStatusDiv").style.borderColor = "red";
           document.getElementById("tmStatus").innerHTML = `
+        
           <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">The turing machine halted. No valid transition for state "${stateName}" and symbol "${this.tape[this.currentIdx]}".</p>
-          <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+          <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">
               Final tape: ${finalTape}<br>
               Final state: ${stateName}<br>
               Status: REJECT
@@ -1679,8 +1697,8 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
           stateStatus = "halt";
           document.getElementById("tmStatusDiv").style.borderColor = "red";
           document.getElementById("tmStatus").innerHTML = `
-          <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">The turing machine was manually halted.</p>
-          <p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+          <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">The turing machine was manually halted.</p>
+          <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">
               Final tape: ${finalTape}<br>
               Final state: ${stateName}
           </p>`;
@@ -1698,20 +1716,47 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
       async run() {
 
     //Disable user interaction with cytoscape
-     document.getElementById('cy').style.pointerEvents = 'none';
-     document.getElementById("tminput").style.pointerEvents = 'none';
-    document.getElementById("runtm").style.pointerEvents = 'none';
+      document.getElementById('cy').style.pointerEvents = 'none';
+      document.getElementById("tminput").style.pointerEvents = 'none';
+      document.getElementById("runtm").style.pointerEvents = 'none';
+
+        var count = 0;
+        var maxCount = 500000;
 
 
           while (!this.finalStates.includes(this.currentState) && !this.haltFlag) {
+
+            count++;
+
+            if(count > maxCount){
+              break;
+            }
+
             const result = await this.step();
               if (!result) {
                   break;
               }
           }
 
-          if(!this.haltFlag){
+          if(!this.haltFlag && count <= maxCount){
             this.halt(false);
+          }else{
+            //Show in the status div that the turing machine was halted because it took too long
+            document.getElementById("tmStatusDiv").style.borderColor = "red";
+            document.getElementById("tmStatus").innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+            The turing machine was halted because it took too long to process the input. The turing machine may be in an infinite loop. 500,000 steps were executed.
+            </p>`;
+
+            //Enable user interaction
+            document.getElementById('cy').style.pointerEvents = 'auto';
+            document.getElementById("tminput").style.pointerEvents = 'auto';
+            document.getElementById("runtm").style.pointerEvents = 'auto';
+
+            //Hide the halt button
+            document.getElementById("tmhalt").classList.add("hidden");
+
+
+           
           }
 
           
@@ -1725,12 +1770,6 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
   }
 
  
-  
-  //Add event listeners to main control panel after initial load, when main control panel added dynamically, event listeners are added dynamically as well(see showMainControlPanel function)
-  
- 
-   
-   
   
 
 
@@ -1795,8 +1834,10 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
        var initState = initialState;
        var finalStates = [acceptState, rejectState];
        var transitions = transitionFunction;
+
+       var speed = document.getElementById("speed").value;
  
-       var tm = new TuringMachine(input, initState, transitions, finalStates, 500);
+       var tm = new TuringMachine(input, initState, transitions, finalStates, speed);
 
        tm.run();
 
@@ -1914,155 +1955,138 @@ function hideLoader() {
 }
 
 //Import json
-// Trigger file input click on link click
 document.getElementById('importJson').addEventListener('click', function() {
   document.getElementById('importJsonBtn').click();
 });
 
 document.getElementById("importJsonBtn").addEventListener("change", async function (e) {
 
-  //Show loader
- showLoader();
-
-
-
+  // Show loader
+  showLoader();
 
   const fileInput = e.target;
   const file = fileInput.files[0];
- 
 
-  if(!file){
+  if (!file) {
     hideLoader();
     return;
   }
 
+  // Check if the file is a JSON file
+  if (file.type !== "application/json") {
+    notifier.info("The selected file is not a JSON file. Please select a valid JSON file.", {
+        durations: { info: 5000 },
+        labels: { info: "Invalid File Type" }
+    });
+    hideLoader();
+    return;
+  }
 
   const reader = new FileReader();
   reader.onload = async function (e) {
-    const json = JSON.parse(e.target.result);
+    try {
+      const json = JSON.parse(e.target.result);
 
-    //check if the json file is a tm simulator json file
-    if (json.identifier !== "tmSimulatorDelanoMartin") {
-      notifier.info("The imported JSON file is not recognized. Please make sure you are using a file exported from our platform that contains the necessary Turing machine data.", {
-          durations: { info: 5000 },
-          labels: { info: "Invalid File" }
+      // Check if the JSON file is a tm simulator json file
+      if (json.identifier !== "tmSimulatorDelanoMartin") {
+        notifier.info("The imported JSON file is not recognized. Please make sure you are using a file exported from our platform that contains the necessary Turing machine data.", {
+            durations: { info: 5000 },
+            labels: { info: "Invalid File" }
+        });
+        hideLoader();
+        return;
+      }
+
+      // Check if tm data is empty
+      if (json.elements.length === 0) {
+        notifier.info("The imported JSON file does not contain any Turing machine data. Please make sure you are using a file exported from our platform that contains the necessary Turing machine data.", {
+            durations: { info: 5000 },
+            labels: { info: "Empty File" }
+        });
+        hideLoader();
+        return;
+      }
+
+      // Make start state
+      initialState = json.startState;
+      acceptState = json.acceptState;
+      rejectState = json.rejectState;
+
+      // Clear the graph first if elements exist
+      if (cy.elements().length > 0) {
+        await cy.elements().remove();
+      }
+
+      // Add the transition function
+      transitionFunction = json.transitionFunction;
+
+      await cy.json(json);
+      await cy.fit();
+
+      // Add the transition function to the edges
+      cy.edges().forEach((edge) => {
+        var sourceId = edge.source().id();
+        var targetId = edge.target().id();
+
+        if (edge.data("transitions")) {
+          // Get all transitions for this edge
+          var transitions = edge.data("transitions").map(t => {
+            var transitionId = sourceId + "," + t.currentSymbol;
+            var transition = transitionFunction[transitionId];
+            return {
+              currentSymbol: t.currentSymbol,
+              nextSymbol: transition[1],
+              direction: transition[2],
+            };
+          });
+
+          // Update the edge data with all transitions
+          edge.data("transitions", transitions);
+
+          // Update the edge label
+          var label = transitions
+            .map((t) => `(${t.currentSymbol}, ${t.nextSymbol}, ${t.direction})`)
+            .join(", ");
+          edge.style({
+            "label": label,
+            "text-wrap": "wrap",
+            "text-background-shape": "roundrectangle",
+            "font-size": "8px", 
+            "font-family": "Arial, sans-serif",  
+            "text-background-color": "#999999",  
+            "text-background-opacity": 0.8, 
+          });
+        }
       });
-      hideLoader();
-      return;
-  }
 
-  //check if tm data is empty
-  if (json.elements.length === 0) {
-      notifier.info("The imported JSON file does not contain any Turing machine data. Please make sure you are using a file exported from our platform that contains the necessary Turing machine data.", {
-          durations: { info: 5000 },
-          labels: { info: "Empty File" }
-      });
-      hideLoader();
-      return;
+      if (initialState != null) {
+        makeStartState(cy.$("#" + initialState));
+      }
+      if (acceptState != null) {
+        makeAcceptState(cy.$("#" + acceptState));
+      }
+      if (rejectState != null) {
+        makeRejectState(cy.$("#" + rejectState));
+      }
 
-  }
-
-   //make start state
-   initialState = json.startState;
-   acceptState = json.acceptState;
-   rejectState = json.rejectState;
-  
-    // alert("json found", json );
-    // console.log("imported json", json);
-
-    //clear the graph first if elements exist
-    if (cy.elements().length > 0) {
-      await cy.elements().remove();
-    }
-   
-
-    console.log("The values of initial state, accept state and reject state are", json.startState, json.acceptState, json.rejectState)
-
-
-   
-
-    //add the transition function
-    transitionFunction = json.transitionFunction;
-
-    await cy.json(json);
-    await cy.fit();
-
-   
-    // Add the transition function to the edges
-    cy.edges().forEach((edge) => {
-      var sourceId = edge.source().id();
-      var targetId = edge.target().id();
-
-      // if (!edge.data("transitions")) {
-      //   edge.data("transitions", []);
-      // }
-      if(edge.data("transitions")){
-      // Get all transitions for this edge
-      var transitions = edge.data("transitions").map(t => {
-        var transitionId = sourceId + "," + t.currentSymbol;
-        var transition = transitionFunction[transitionId];
-        return {
-          currentSymbol: t.currentSymbol,
-          nextSymbol: transition[1],
-          direction: transition[2],
-        };
-      });
-
-      // Update the edge data with all transitions
-      edge.data("transitions", transitions);
-
-      // Update the edge label
-      var label = transitions
-        .map((t) => `(${t.currentSymbol}, ${t.nextSymbol}, ${t.direction})`)
-        .join(", ");
-      edge.style({
-        "label": label,
-        "text-wrap": "wrap",
-        "text-background-shape": "roundrectangle",
-        "font-size": "8px", 
-        "font-family": "Arial, sans-serif",  
-        "text-background-color": "#999999",  
-        "text-background-opacity": 0.8, 
-      });
-    }
+      notifier.info("Turing machine imported successfully", { durations: { success: 2000 }, labels: { info: "Imported" } });
       
-    });
-
-    // console.log("imported transition function", transitionFunction);
-    // console.log("imported start state", initialState);
-    // console.log("imported accept state", acceptState);
-    // console.log("imported reject state", rejectState);
-
-    if(initialState != null){
-      makeStartState(cy.$("#" + initialState));
+    } catch (error) {
+      notifier.info("An error occurred while importing the JSON file. Please make sure the file is in the correct format.", {
+          durations: { info: 5000 },
+          labels: { info: "Import Error" }
+      });
+    } finally {
+      hideLoader();
     }
-    if(acceptState != null){
-      makeAcceptState(cy.$("#" + acceptState));
-    }
-    if(rejectState != null){
-      makeRejectState(cy.$("#" + rejectState));
-    }
-
-   
-    
-    // makeStartState(cy.$("#" + initialState));
-    // makeAcceptState(cy.$("#" + acceptState));
-    // makeRejectState(cy.$("#" + rejectState));
-
-    notifier.info("Turing machine imported successfully", {durations: {success: 2000}, labels: {info: "Imported"}});
-
-    hideLoader();
-  
-
-   
-     
   };
+  
   reader.readAsText(file);
 
   // Reset the value of the file input after processing the file
   fileInput.value = null;
-}
-);
+});
+
 
 
 //Make navbar collapsable on mobile

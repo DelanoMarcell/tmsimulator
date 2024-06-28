@@ -164,7 +164,7 @@ data-twe-navbar-ref>
           aria-current="page"
           href="#"
           data-twe-nav-link-ref
-          >TM-Simulator(Demo)</a
+          >DrawTuringMachines(Demo)</a
         >
       </li>
       <!-- Link -->
@@ -238,6 +238,20 @@ data-twe-navbar-ref>
           </script> -->
         </ul>
       </li>
+
+      <li
+      class="mb-4 ps-2 lg:mb-0 lg:pe-1 lg:ps-0"
+      data-twe-nav-item-ref>
+      <a
+        class="p-0 text-black/60 transition duration-200 hover:text-black/80 hover:ease-in-out focus:text-black/80 active:text-black/80 motion-reduce:transition-none dark:text-white/60 dark:hover:text-white/80 dark:focus:text-white/80 dark:active:text-white/80 lg:px-2"
+        href="#"
+        id="About"
+        data-twe-nav-link-ref
+        >About</a
+      >
+      
+
+    </li>
      
     </ul>
   </div>
@@ -291,6 +305,16 @@ data-twe-navbar-ref>
           <label for="tminput" class="text-center text-lg font-semibold">Tape input:</label>
           <input type="text" name="tminput" id="tminput" autocomplete="tminput"
             class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
+            <label for="speed" class="text-center text-lg font-semibold mt-2">Animation Speed:</label>
+            <select id="speed" class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
+              <option value="3500">Slower</option>
+            <option value="1000">Slow</option>
+            <option value="500">Medium</option>
+            <option value="250" selected>Fast</option>
+            <option value="150">Faster</option>
+            <option value="0">Instant</option>
+            </select>
+            
           <button
             class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
             type="button" id="runtm">Run</button>
