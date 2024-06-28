@@ -427,24 +427,44 @@ But we dont need to delete the transitions stored in the edge's data because the
     console.log(transitionFunction);
   }
 
-  function RenderTape(input, currentIndex = 0){
+  // function RenderTape(input, currentIndex = 0){
 
 
+  //   var tapeContainer = document.getElementById('tape');
+  //   var tape = input;
+
+  //   tapeContainer.innerHTML = ''; // Clear the existing tape display
+
+  //   tape.forEach((symbol, index) => {
+  //     const cell = document.createElement('div');
+  //     cell.className = 'tape-cell';
+  //     cell.textContent = symbol;
+  //     if (index === currentIndex) {
+  //       cell.classList.add('current-cell');
+  //     }
+  //     tapeContainer.appendChild(cell);
+  //   });
+  // }
+
+  //renderTape method but instead of taking in an array, it takes in a map, since my turing machien uses a map to store the tape
+  function RenderTape(input, currentIndex = 0) {
     var tapeContainer = document.getElementById('tape');
-    var tape = input;
-
     tapeContainer.innerHTML = ''; // Clear the existing tape display
 
-    tape.forEach((symbol, index) => {
-      const cell = document.createElement('div');
-      cell.className = 'tape-cell';
-      cell.textContent = symbol;
-      if (index === currentIndex) {
-        cell.classList.add('current-cell');
-      }
-      tapeContainer.appendChild(cell);
+    // Convert map to an array of entries and sort them by keys
+    const sortedEntries = Array.from(input.entries()).sort(([keyA], [keyB]) => keyA - keyB);
+
+    sortedEntries.forEach(([index, symbol]) => {
+        const cell = document.createElement('div');
+        cell.className = 'tape-cell';
+        cell.textContent = symbol;
+        if (index === currentIndex) {
+            cell.classList.add('current-cell');
+        }
+        tapeContainer.appendChild(cell);
     });
-  }
+}
+
 
   cy.style()
   .selector('.highlightedEdge')
@@ -1557,7 +1577,11 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
     //Define tm class
     class TuringMachine {
       constructor(tape, initialState, transitionFunction, finalStates, delay) {
-          this.tape = tape.split('');
+          this.tape = new Map();
+          tape.split('').forEach((symbol, index) => this.tape.set(index, symbol));
+          // for (let i = 0; i < tape.length; i++) {
+          //     this.tape.set(i, tape[i]);
+          // }
           this.currentIdx = 0;
           this.currentState = initialState;
           this.transitionFunction = transitionFunction;
@@ -1571,9 +1595,10 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
       async step() {
       
 
-          var currentSymbol = this.tape[this.currentIdx];
+          var currentSymbol = this.tape.get(this.currentIdx);
           if(currentSymbol === undefined){
-              this.tape[this.currentIdx] = '_';
+              
+              this.tape.set(this.currentIdx, '_');
               currentSymbol = '_';
           }
           const stateSymbolPair = `${this.currentState},${currentSymbol}`;
@@ -1596,19 +1621,32 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
                 return;
               }
 
+              //Change the tape to be sent to render to right array format
+             // Change the tape to be sent to render to the right array format
+              // var tapeArray = [];
+              // const keys = Array.from(this.tape.keys()).sort((a, b) => a - b); // Convert keys iterator to array and sort
+
+              // keys.forEach((key) => {
+              //   tapeArray.push(this.tape.get(key));
+              // });
+
+
+
               if(this.delay!=0){
+                // console.log("Tape being rendered", this.tape)
+                // console.log("Tape being rendered Joined", this.tape.join(''))
                 RenderTape(this.tape, this.currentIdx);
                 RenderCurrentOnTm(this.currentState, nextState, currentSymbol, this.delay);
-
               }
              
   
 
-              this.tape[this.currentIdx] = writeSymbol;
+              this.tape.set(this.currentIdx, writeSymbol);
               this.currentIdx += move === 'R' ? 1 : -1;
 
-            
               this.currentState = nextState;
+
+              
 
          
 
@@ -1740,7 +1778,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
 
           if(!this.haltFlag && count <= maxCount){
             this.halt(false);
-          }else{
+          }else if(count > maxCount && !this.haltFlag){
             //Show in the status div that the turing machine was halted because it took too long
             document.getElementById("tmStatusDiv").style.borderColor = "red";
             document.getElementById("tmStatus").innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
@@ -1754,9 +1792,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
 
             //Hide the halt button
             document.getElementById("tmhalt").classList.add("hidden");
-
-
-           
+ 
           }
 
           
@@ -1764,7 +1800,16 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
       }
   
       getTape() {
-          return this.tape.join('');
+       
+          const tape = [];
+          const keys = Array.from(this.tape.keys()).sort((a, b) => a - b);
+      
+          keys.forEach(index => {
+              tape.push(this.tape.get(index));
+          });
+      
+          return tape.join('');
+      
       }
 
   }
