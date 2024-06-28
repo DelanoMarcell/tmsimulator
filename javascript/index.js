@@ -2066,7 +2066,7 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
       transitionFunction = json.transitionFunction;
 
       await cy.json(json);
-      await cy.fit();
+     
 
       // Add the transition function to the edges
       cy.edges().forEach((edge) => {
@@ -2122,7 +2122,9 @@ document.getElementById("importJsonBtn").addEventListener("change", async functi
           labels: { info: "Import Error" }
       });
     } finally {
+      await cy.fit();
       hideLoader();
+     
     }
   };
   
