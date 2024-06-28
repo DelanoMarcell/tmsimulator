@@ -1423,7 +1423,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
   //create states tour
   const steps = [
     {
-      content: `<img src='./assets/stateModeGif.gif' alt='Tour Gif'' /><br/> Welcome to the tour guide! In order to create a state, enable state mode by clicking on the highlighted button. Then click anywhere on the canvas to create a state. For as long as state mode is enabled, you can create as many states as you want. Click next to continue the tour.`,
+      content: `<img src='./assets/stateModeGif.gif' alt='Tour Gif'' /><br/> Welcome to the tour guide! In order to create a state, enable state mode by clicking on the highlighted button. Then click anywhere on the canvas to create a state. For as long as state mode is enabled, you can create as many states as you want. <b>Remember to disable state mode when you are done creating states so that you don't accidentally create more states when you click on the canvas.</b> Click next to continue the tour.`,
       title: "State Mode",
       target: "#addState",
       order: 1,
@@ -1431,7 +1431,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
     },
 
     {
-      content: `<img src='./assets/stateModeGif2.gif' alt='Tour Gif'' /><br/> Draw mode allows you to create transitions between states. You can enable draw mode by clicking on the highlighted button. Then click on a state and drag to another state to create a transition. You are able to create self loops by dragging from a state to itself.`,
+      content: `<img src='./assets/stateModeGif2.gif' alt='Tour Gif'' /><br/> Draw mode allows you to draw edges between states. When draw mode is enabled, you can draw edges between states by clicking on a state and dragging to another state. <b>To create an edge from a state to itself, click on the state and drag to the same state.</b> Click next to continue the tour.`,
       title: "Draw Mode",
       target: "#drawMode",
       order: 2,
@@ -1440,7 +1440,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
 
     //Fit content button
     {
-      content: `This button allows you to fit the content of the canvas to the screen. Click next to continue the tour.`,
+      content: `Fits the content of the canvas to the screen. This is useful when you have zoomed in or out of the canvas and want to fit the content back to the screen, or when you have panned the canvas and want to center the content. Click next to continue the tour.`,
       title: "Fit Content",
       target: "#fitContent",
       order: 3,
@@ -1448,7 +1448,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
     },
 
     {
-      content: `The control panel has has different panels depending on what is selected. When a node is selected, the control panel will show the state panel. When an edge is selected, the control panel will show the edge panel. When neither a node or edge is selected, the control panel allows you to run the Turing machine on certain input. Click next to continue the tour.`,
+      content: `The control panel is where you can enter the input for the Turing machine, set the speed of the Turing machine, and see the status of the Turing machine. The control panel is updated with the details of the node or edge that you click on. Click next to continue the tour.`,
       title: "Control panel",
       target: "#control",
       order: 4,
@@ -1457,7 +1457,7 @@ document.getElementById("mainControlPanel").addEventListener("click", function (
 
     //Canvas tour
     {
-      content: `This is the canvas where you can create your Turing machine. You can zoom in and out of the canvas using the mouse wheel. You can also pan the canvas by clicking and dragging. Click next to continue the tour.`,
+      content: `This is the canvas where you can create states and draw edges between states. You can pan the canvas by clicking and dragging, and zoom in and out by scrolling. The canvas is where you can create your Turing machine. Click next to continue the tour.`,
       title: "Canvas",
       target: "#cy",
       order: 5,
