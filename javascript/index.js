@@ -541,11 +541,12 @@ But we dont need to delete the transitions stored in the edge's data because the
 
           <label for="speed" class="text-center text-lg font-semibold mt-2">Animation Speed:</label>
           <select id="speed" class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
-          <option value="3500">Slower</option>
+            <option value="3500">Slower</option>
             <option value="1000">Slow</option>
             <option value="500">Medium</option>
             <option value="250" selected>Fast</option>
             <option value="150">Faster</option>
+            <option value="50">Fastest</option>
             <option value="0">Instant</option>
           </select>
           
@@ -1420,7 +1421,7 @@ But we dont need to delete the transitions stored in the edge's data because the
   //create states tour
   const steps = [
     {
-      content: `<img src='./assets/stateModeGif.gif' alt='Tour Gif'' /><br/> Welcome to the tour guide! In order to create a state, enable state mode by clicking on the highlighted button. Then click anywhere on the canvas to create a state. For as long as state mode is enabled, you can create as many states as you want. <b>Remember to disable state mode when you are done creating states so that you don't accidentally create more states when you click on the canvas.</b> Click next to continue the tour.`,
+      content: `<img src='./assets/stateModeGif.gif' alt='Tour Gif'' /><br/> Welcome to the tour guide! To create a state, click the highlighted button to enable state mode, then click anywhere on the canvas to create a state. Disable state mode when you're finished to <b>avoid accidental creation of more states.</b> Click next to continue the tour.`,
       title: "State Mode",
       target: "#addState",
       order: 1,
@@ -1428,7 +1429,7 @@ But we dont need to delete the transitions stored in the edge's data because the
     },
 
     {
-      content: `<img src='./assets/stateModeGif2.gif' alt='Tour Gif'' /><br/> Draw mode allows you to draw edges between states. When draw mode is enabled, you can draw edges between states by clicking on a state and dragging to another state. <b>To create an edge from a state to itself, click on the state and drag to the same state.</b> Click next to continue the tour.`,
+      content: `<img src='./assets/stateModeGif2.gif' alt='Tour Gif'' /><br/> In draw mode, you can draw edges between states by clicking on a state and dragging to another state. To create an edge from a state to itself, click and drag from the state back to itself.`,
       title: "Draw Mode",
       target: "#drawMode",
       order: 2,
@@ -1437,36 +1438,58 @@ But we dont need to delete the transitions stored in the edge's data because the
 
     //Fit content button
     {
-      content: `Fits the content of the canvas to the screen. This is useful when you have zoomed in or out of the canvas and want to fit the content back to the screen, or when you have panned the canvas and want to center the content. Click next to continue the tour.`,
+      content: `Adjusts the canvas to display all content within the visible area.`,
       title: "Fit Content",
       target: "#fitContent",
       order: 3,
       group: "my-first-tour",
     },
 
+    //Import button tour
+    {
+      content: `The import button lets you bring in a Turing machine from a JSON file exported from this platform previously.`,
+      title: "Import",
+      target: "#importJson",
+      order: 4,
+      group: "my-first-tour",
+    },
+    
+    //Export button tour
+    {
+      content: `The export button allows you to save the Turing machine as a JSON file, which you can later import back into the platform. You can also export as an image`,
+      title: "Export",
+      target: "#dropdownMenuButton",
+      order: 5,
+      group: "my-first-tour",
+    },
+    
+
+
+
+
     {
       content: `The control panel is where you can enter the input for the Turing machine, set the speed of the Turing machine, and see the status of the Turing machine. The control panel is updated with the details of the node or edge that you click on. Click next to continue the tour.`,
       title: "Control panel",
       target: "#control",
-      order: 4,
+      order: 5,
       group: "my-first-tour",
     },
 
     //Canvas tour
     {
-      content: `This is the canvas where you can create states and draw edges between states. You can pan the canvas by clicking and dragging, and zoom in and out by scrolling. The canvas is where you can create your Turing machine. Click next to continue the tour.`,
+      content: `This canvas is where you create states and draw edges between them to build your Turing machine. You can pan by clicking and dragging, and zoom in and out using your scroll wheel.`,
       title: "Canvas",
       target: "#cy",
-      order: 5,
+      order: 6,
       group: "my-first-tour",
     },
 
     //The smaller div that will show the tape
     {
-      content: `This is the tape where you can see how the Turing machine processes input. The tape is infinite in both directions. You can now start playing with this platform on your own. Enjoy!`,
+      content: `This is the tape where you can observe how the Turing machine processes input. The tape extends infinitely in both directions. Feel free to explore the platform on your own now!`,
       title: "Tape",
       target: "#tape",
-      order: 6,
+      order: 7,
       group: "my-first-tour",
     },
   ];
