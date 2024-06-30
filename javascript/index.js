@@ -1944,21 +1944,33 @@ But we dont need to delete the transitions stored in the edge's data because the
 
   /////Extra things end here////
 
-
+  
+  //Dropdown menu export
   document.getElementById("dropdownMenuButton").addEventListener("click", function () {
     document.getElementById("dropdownMenuArea").classList.toggle("hidden");
+  });
+  
+  //Dropdown menu guides
+  document.getElementById("dropdownMenuButtonGuides").addEventListener("click", function () {
+    document.getElementById("dropdownMenuAreaGuides").classList.toggle("hidden");
   });
 
 
   window.addEventListener('click', function (event) {
-    if (!event.target.matches('#dropdownMenuButton')) {
+    if (!event.target.matches('#dropdownMenuButton') ) {
       if (!document.getElementById("dropdownMenuArea").classList.contains('hidden')) {
         document.getElementById("dropdownMenuArea").classList.add('hidden');
       }
-
-
+    }
+    
+    if (!event.target.matches('#dropdownMenuButtonGuides') ) {
+      if (!document.getElementById("dropdownMenuAreaGuides").classList.contains('hidden')) {
+        document.getElementById("dropdownMenuAreaGuides").classList.add('hidden');
+      }
     }
   });
+
+
 
   //export as png
   document.getElementById("exportAsPng").addEventListener("click", function () {
