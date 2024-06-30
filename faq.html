@@ -127,23 +127,33 @@ data-twe-navbar-ref>
         <details>
             <summary class="py-2 outline-none cursor-pointer focus:underline">What is a Turing machine?</summary>
             <div class="px-4 pb-4">
-              <p>A Turing machine is a mathematical model of computation that defines an abstract machine capable of simulating any algorithmic process.</p>
+              <p>A <a href="https://en.wikipedia.org/wiki/Turing_machine" class="underline hover:font-semibold">Turing machine</a> is a mathematical model of computation describing an abstract machine that manipulates symbols on a strip of tape according to a table of rules. It is capable of implementing any computer algorithm.</p>
             </div>
           </details>
         
           <details>
-            <summary class="py-2 outline-none cursor-pointer focus:underline">How do I create a Turing machine on DrawTuringMachines?</summary>
+            <summary class="py-2 outline-none cursor-pointer focus:underline">How do I create a Turing machine on DrawTurings?</summary>
             <div class="px-4 pb-4">
-              <p>To create a Turing machine, use the graphical interface to add states, draw transitions between them, and define input/output behaviors. See our tutorial for detailed instructions.</p>
+              To create a Turing machine, first enable state mode and draw mode. Then, click on the canvas while state mode is enabled to create states, and draw edges between states while draw mode is enabled. You can define transitions by clicking on the edges. To start the machine, select a start state, an accept state, and a reject state. Note that the reject state needs to be created even if it won't be used in your Turing machine. This ensures that symbols with no transitions at particular states automatically go to the reject state.
             </div>
           </details>
         
+                  
           <details>
-            <summary class="py-2 outline-none cursor-pointer focus:underline">Can I import/export Turing machines?</summary>
+            <summary class="py-2 outline-none cursor-pointer focus:underline">What happens if a state is reached and no transition is defined for a particular symbol?</summary>
             <div class="px-4 pb-4">
-              <p>Yes, you can import existing Turing machines from JSON files exported from this platform. You can also export your Turing machines as an image or JSON file.</p>
+              <p>If the simulator reaches a state and no transition is defined for a particular symbol, the input is automatically rejected. You will be notified that a transition was not defined. This means you can leave out transitions to the reject state, making your Turing machine diagrams neater.</p>
             </div>
           </details>
+
+          <details>
+            <summary class="py-2 outline-none cursor-pointer focus:underline">Do I need to define a reject state in my Turing machine graph?</summary>
+            <div class="px-4 pb-4">
+              <p>Yes, every Turing machine graph needs to have a reject state defined, even if it won't be used. You can simply create the reject state without defining any transitions to it. This is so that symbols with no transiions at particular states go to the reject state.</p>
+            </div>
+          </details>
+
+
     </div>
   </div>
 </section>
