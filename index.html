@@ -10,6 +10,7 @@
 
   <link href="./src/output.css" rel="stylesheet">
   <link href="./src/tour.min.css" rel="stylesheet">
+  
   <link rel="stylesheet" href="./src/style.var.css"></link>
   <script src="./javascript/index.var.js"></script>
   <script src="./javascript/c.js"></script>
@@ -20,6 +21,8 @@
   <script src="./javascript/popper.min.js"></script>
   <script src="./javascript/tippy-bundle.umd.min.js"></script>
   <script src="./javascript/lz-string.min.js"></script>
+  
+
   
 
 
@@ -300,19 +303,113 @@ data-twe-navbar-ref>
         </ul>
       </li>
 
-      <li
-      class="mb-4 ps-2 lg:mb-0 lg:pe-1 lg:ps-0"
-      data-twe-nav-item-ref>
-      <a
-        class="p-0 text-black/60 transition duration-200 hover:text-black/80 hover:ease-in-out focus:text-black/80 active:text-black/80 motion-reduce:transition-none dark:text-white/60 dark:hover:text-white/80 dark:focus:text-white/80 dark:active:text-white/80 lg:px-2"
-        href="/tmsimulator/about"
-        id="About"
-        data-twe-nav-link-ref
-        >About</a
-      >
-      
+     
 
-    </li>
+       <!-- Dropdown link Examples-->
+       <li
+       class="mb-4 ps-2 lg:mb-0 lg:pe-1 lg:ps-0"
+       data-twe-nav-item-ref
+       data-twe-dropdown-ref>
+       <!-- Dropdown -->
+       <a
+         class="flex items-center text-black/60 transition duration-200 hover:text-black/80 hover:ease-in-out focus:text-black/80 active:text-black/80 motion-reduce:transition-none dark:text-white/60 dark:hover:text-white/80 dark:focus:text-white/80 dark:active:text-white/80 lg:px-2"
+         href="#"
+         
+         type="button"
+         id="dropdownMenuButtonExamples"
+         data-twe-dropdown-toggle-ref
+         aria-expanded="false">
+        Examples
+         <span class="ms-1 [&>svg]:w-5">
+           <svg
+             xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 20 20"
+             fill="currentColor">
+             <path
+               fill-rule="evenodd"
+               d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+               clip-rule="evenodd" />
+           </svg>
+         </span>
+       </a>
+       <ul
+         class="absolute z-[1000] hidden float-left m-0 min-w-max list-none overflow-hidden rounded-lg border hover:bg-gray-600 border-gray-600 bg-[#111827] bg-clip-padding text-left text-base shadow-lg data-[twe-dropdown-show]:block dark:bg-surface-dark"
+         aria-labelledby="dropdownMenuButton"
+         id="dropdownMenuAreaExamples"
+         data-twe-dropdown-menu-ref>
+         <li>
+          <a
+            class="0n1n block w-full whitespace-nowrap bg-[#111827] px-4 py-2 text-sm font-normal text-neutral-700 hover:bg-zinc-200/60 focus:bg-zinc-200/60 focus:outline-none active:bg-zinc-200/60 active:no-underline dark:bg-surface-dark dark:text-white dark:hover:bg-neutral-800/25 dark:focus:bg-neutral-800/25 dark:active:bg-neutral-800/25"
+            href="#"
+            id="zero_n_one_n"
+            
+            data-twe-dropdown-item-ref
+            >Zeroes followed by ones, equal Length</a
+          >
+        </li>
+        <li>
+          <a
+            class="block w-full whitespace-nowrap bg-[#111827] px-4 py-2 text-sm font-normal text-neutral-700 hover:bg-zinc-200/60 focus:bg-zinc-200/60 focus:outline-none active:bg-zinc-200/60 active:no-underline dark:bg-surface-dark dark:text-white dark:hover:bg-neutral-800/25 dark:focus:bg-neutral-800/25 dark:active:bg-neutral-800/25"
+            href="#"
+            id="anbncn"
+            data-twe-dropdown-item-ref
+            >Equal a's, b's, and c's, in that order.</a
+          >
+        </li>
+        <li>
+          <a
+            class="block w-full whitespace-nowrap bg-[#111827] px-4 py-2 text-sm font-normal text-neutral-700 hover:bg-zinc-200/60 focus:bg-zinc-200/60 focus:outline-none active:bg-zinc-200/60 active:no-underline dark:bg-surface-dark dark:text-white dark:hover:bg-neutral-800/25 dark:focus:bg-neutral-800/25 dark:active:bg-neutral-800/25"
+            href="#"
+            id="evenpalindrome"
+            data-twe-dropdown-item-ref
+            >Even Length Palindrome</a
+          >
+        </li>
+       
+        <li>
+          <a
+            class="block w-full whitespace-nowrap bg-[#111827] px-4 py-2 text-sm font-normal text-neutral-700 hover:bg-zinc-200/60 focus:bg-zinc-200/60 focus:outline-none active:bg-zinc-200/60 active:no-underline dark:bg-surface-dark dark:text-white dark:hover:bg-neutral-800/25 dark:focus:bg-neutral-800/25 dark:active:bg-neutral-800/25"
+            href="#"
+            id="same_num_1s_0s"
+            data-twe-dropdown-item-ref
+            >Equal number of Ones and Zeroes</a
+          >
+        </li>
+        <li>
+          <a
+            class="block w-full whitespace-nowrap bg-[#111827] px-4 py-2 text-sm font-normal text-neutral-700 hover:bg-zinc-200/60 focus:bg-zinc-200/60 focus:outline-none active:bg-zinc-200/60 active:no-underline dark:bg-surface-dark dark:text-white dark:hover:bg-neutral-800/25 dark:focus:bg-neutral-800/25 dark:active:bg-neutral-800/25"
+            href="#"
+            id="unary_0_addition"
+            data-twe-dropdown-item-ref
+            >Unary Zero Addition</a
+          >
+        </li>
+       
+<!--         
+        <script defer>
+           tippy('#zero_n_one_n', {
+       content: 'Zeroes followed by ones but the length of zeroes is equal to the length of ones',
+       placement: 'right',
+
+       
+     });
+         </script> -->
+       </ul>
+     </li>
+
+     <li
+     class="mb-4 ps-2 lg:mb-0 lg:pe-1 lg:ps-0"
+     data-twe-nav-item-ref>
+     <a
+       class="p-0 text-black/60 transition duration-200 hover:text-black/80 hover:ease-in-out focus:text-black/80 active:text-black/80 motion-reduce:transition-none dark:text-white/60 dark:hover:text-white/80 dark:focus:text-white/80 dark:active:text-white/80 lg:px-2"
+       href="/tmsimulator/about"
+       id="About"
+       data-twe-nav-link-ref
+       >About</a
+     >
+     
+
+   </li>
 
   </li>
 
@@ -552,7 +649,39 @@ data-twe-navbar-ref>
 
   <script src="./javascript/index.min.js"></script>
 
+  <script defer>
+    // Zeroes followed by ones, equal length
+  tippy('#zero_n_one_n', {
+    content: 'A sequence of zeroes followed by ones, where the number of zeroes equals the number of ones.',
+    placement: 'right',
+  });
 
+  // Equal a's, b's, and c's, in that order
+  tippy('#anbncn', {
+    content: 'A string containing equal numbers of the characters \'a\', \'b\', and \'c\', in that exact order.',
+    placement: 'right',
+  });
+
+  // Even Length Palindrome
+  tippy('#evenpalindrome', {
+    content: 'A sequence that reads the same forwards and backwards, with an even number of characters.',
+    placement: 'right',
+  });
+
+  // Equal number of Ones and Zeroes
+  tippy('#same_num_1s_0s', {
+    content: 'A binary string with an equal count of \'1\'s and \'0\'s.',
+    placement: 'right',
+  });
+
+  // Unary Zero Addition
+  tippy('#unary_0_addition', {
+    content: 'An addition operation performed on zeros, where  \'_\' is the separator. For example, 00_00 = 0000.',
+    placement: 'right',
+  });
+
+  </script>
+  
 </body>
 
 </html>

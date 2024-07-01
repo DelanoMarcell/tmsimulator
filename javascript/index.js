@@ -6,10 +6,17 @@ document.addEventListener("DOMContentLoaded", function () {
   //Define global variable(Current Selected Edge)
   var currentEdge = null;
 
-  //
+
   let notifier = new AWN();
 
-
+  //Store all the example turing machines in an array 
+  var exampleTuringMachines = {
+    "zero_n_one_n": `{"identifier":"tmSimulatorDelanoMartin","elements":[{"data":{"id":"q0","name":"q0"},"position":{"x":163.37581294648103,"y":15.262560289335054},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q1","name":"q1"},"position":{"x":307.6350147239732,"y":12.075724509825859},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q2","name":"q2"},"position":{"x":299.5786394573782,"y":164.1878877094151},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q3","name":"Start","start":true,"accept":false,"reject":false},"position":{"x":162.47406890551082,"y":162.4750026659847},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q4","name":"Reject","reject":true,"start":false,"accept":false},"position":{"x":79.47933550952126,"y":67.63752818254618},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q5","name":"Accept","accept":true,"start":false,"reject":false},"position":{"x":82.37382176094177,"y":155.8395502085967},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"source":"q0","target":"q0","id":"4bb5dc06-dc1f-43a5-a995-8d725d7a3d76","transitions":[{"currentSymbol":"0","nextSymbol":"0","direction":"L"},{"currentSymbol":"1","nextSymbol":"1","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q0","target":"q3","id":"2e03584a-6094-45c9-a03a-2ea1e376fdbb","transitions":[{"currentSymbol":"_","nextSymbol":"_","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q3","target":"q2","id":"52c75f09-7ad5-4c91-9bc3-172d599fbdf4","transitions":[{"currentSymbol":"0","nextSymbol":"_","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q2","target":"q1","id":"fbe2a660-2562-4945-ab1e-17249dbc7eb6","transitions":[{"currentSymbol":"_","nextSymbol":"_","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q1","target":"q0","id":"55215718-78f8-4c83-b7cb-3a685d2ae2f6","transitions":[{"currentSymbol":"1","nextSymbol":"_","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q1","target":"q4","id":"f120873d-c834-41a0-a48e-984a37066de6","transitions":[{"currentSymbol":"_","nextSymbol":"_","direction":"R"},{"currentSymbol":"0","nextSymbol":"0","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q2","target":"q2","id":"983ada42-5c03-4ae9-abe1-7ccca1fb28ff","transitions":[{"currentSymbol":"0","nextSymbol":"0","direction":"R"},{"currentSymbol":"1","nextSymbol":"1","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q3","target":"q5","id":"9f9f2860-cdba-400e-b9ba-e1b02d1d5d09","transitions":[{"currentSymbol":"_","nextSymbol":"_","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q3","target":"q4","id":"5b381eeb-a5ba-4923-b5cb-59b383d85c9a","transitions":[{"currentSymbol":"1","nextSymbol":"_","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""}],"transitionFunction":{"q3,0":["q2","_","R"],"q2,0":["q2","0","R"],"q2,1":["q2","1","R"],"q2,_":["q1","_","L"],"q1,_":["q4","_","R"],"q1,0":["q4","0","R"],"q0,0":["q0","0","L"],"q0,1":["q0","1","L"],"q0,_":["q3","_","R"],"q3,1":["q4","_","R"],"q3,_":["q5","_","R"],"q1,1":["q0","_","L"]},"startState":"q3","acceptState":"q5","rejectState":"q4"}`,
+    "anbncn":`{"identifier":"tmSimulatorDelanoMartin","elements":[{"data":{"id":"q0","name":"Start","start":true,"accept":false,"reject":false},"position":{"x":81.37142333064328,"y":56.79999634175521},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q1","name":"q1"},"position":{"x":242.51427009497897,"y":68.22856703426129},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q2","name":"q2"},"position":{"x":424.2285441058256,"y":59.657139014881736},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q3","name":"q3"},"position":{"x":405.94283099781586,"y":207.6571294828354},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q4","name":"q4"},"position":{"x":68.7999955688866,"y":203.6571297404583},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q5","name":"Accept","accept":true,"start":false,"reject":false},"position":{"x":238.51427035260184,"y":188.79998784020037},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"source":"q0","target":"q1","id":"60fc38ce-070c-4364-b97f-ceb1b72496f8","transitions":[{"currentSymbol":"a","nextSymbol":"x","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q1","target":"q1","id":"e15a44da-cbbf-4047-a3e5-c176dd72b096","transitions":[{"currentSymbol":"a","nextSymbol":"a","direction":"R"},{"currentSymbol":"y","nextSymbol":"y","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q1","target":"q2","id":"5174f6d0-6242-4135-9021-eedc1611c022","transitions":[{"currentSymbol":"b","nextSymbol":"y","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q2","target":"q2","id":"29b24512-e79a-4f3d-a5fe-54a1a42a8426","transitions":[{"currentSymbol":"b","nextSymbol":"b","direction":"R"},{"currentSymbol":"z","nextSymbol":"z","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q2","target":"q3","id":"b95bef82-2e65-493a-9ac6-b272c0089eb9","transitions":[{"currentSymbol":"c","nextSymbol":"z","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q3","target":"q0","id":"659fef5a-2d2c-439a-a748-a167246f93c7","transitions":[{"currentSymbol":"x","nextSymbol":"x","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q0","target":"q4","id":"63b94f57-6508-4f6a-9850-e03c32a9409b","transitions":[{"currentSymbol":"y","nextSymbol":"y","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q4","target":"q4","id":"d0d71c89-7ac0-48a8-8b3a-67896146040f","transitions":[{"currentSymbol":"y","nextSymbol":"y","direction":"R"},{"currentSymbol":"z","nextSymbol":"z","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q4","target":"q5","id":"92186ef8-4de6-468a-9847-15e3e20ed01a","transitions":[{"currentSymbol":"_","nextSymbol":"_","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q3","target":"q3","id":"d93cfc58-694f-4b89-85a0-3b453c4374a2","transitions":[{"currentSymbol":"z","nextSymbol":"z","direction":"L"},{"currentSymbol":"b","nextSymbol":"b","direction":"L"},{"currentSymbol":"y","nextSymbol":"y","direction":"L"},{"currentSymbol":"a","nextSymbol":"a","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"id":"q6","name":"Reject","reject":true,"start":false,"accept":false},"position":{"x":532.7999656846334,"y":123.65713489291572},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""}],"transitionFunction":{"q0,a":["q1","x","R"],"q1,a":["q1","a","R"],"q1,y":["q1","y","R"],"q1,b":["q2","y","R"],"q2,b":["q2","b","R"],"q2,z":["q2","z","R"],"q2,c":["q3","z","L"],"q3,z":["q3","z","L"],"q3,b":["q3","b","L"],"q3,y":["q3","y","L"],"q3,a":["q3","a","L"],"q3,x":["q0","x","R"],"q4,_":["q5","_","R"],"q4,y":["q4","y","R"],"q4,z":["q4","z","R"],"q0,y":["q4","y","R"]},"startState":"q0","acceptState":"q5","rejectState":"q6"}`,
+    "evenpalindrome":`{"identifier":"tmSimulatorDelanoMartin","elements":[{"data":{"id":"q0","name":"Start","start":true,"accept":false,"reject":false},"position":{"x":25.935791232417873,"y":147.04565337498593},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q1","name":"q1"},"position":{"x":100.20127273493603,"y":60.783440245137925},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q2","name":"q2"},"position":{"x":248.7481069390083,"y":48.7859306178553},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"source":"q1","target":"q1","id":"e95f1514-b0e5-4a7c-99ae-96d253b503d8","transitions":[{"currentSymbol":"a","nextSymbol":"a","direction":"R"},{"currentSymbol":"b","nextSymbol":"b","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"id":"q3","name":"q3"},"position":{"x":459.56229061835387,"y":47.641673148689776},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"source":"q3","target":"q3","id":"65079dd9-6066-41cc-a720-daa28b901fd3","transitions":[{"currentSymbol":"a","nextSymbol":"a","direction":"L"},{"currentSymbol":"b","nextSymbol":"b","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"id":"q4","name":"Accept","accept":true,"start":false,"reject":false},"position":{"x":456.7009467454827,"y":136.76165135162648},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q5","name":"q5"},"position":{"x":118.48698584294577,"y":253.3080208167101},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q6","name":"q6"},"position":{"x":316.16531522548405,"y":262.44885457083785},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q7","name":"q7"},"position":{"x":450.99226299888926,"y":204.17154643854647},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"source":"q0","target":"q1","id":"d74ab97f-5666-4344-a79a-3e21b071d9f4","transitions":[{"currentSymbol":"a","nextSymbol":"*","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q1","target":"q2","id":"a5cb28dd-2b90-420c-9ff2-6c52fc5b5819","transitions":[{"currentSymbol":"_","nextSymbol":"_","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q2","target":"q3","id":"ecd4326e-1857-45dd-864d-21ab33a3611f","transitions":[{"currentSymbol":"a","nextSymbol":"_","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q3","target":"q0","id":"aef3f2de-e3e5-474f-9f71-7925820b64dc","transitions":[{"currentSymbol":"*","nextSymbol":"*","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q0","target":"q5","id":"112b9328-b934-45a9-9fa3-aa06123d21ed","transitions":[{"currentSymbol":"b","nextSymbol":"*","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q5","target":"q5","id":"317ff0e9-42ef-4a65-959e-d95f867b1d52","transitions":[{"currentSymbol":"a","nextSymbol":"a","direction":"R"},{"currentSymbol":"b","nextSymbol":"b","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q5","target":"q6","id":"7d7d3ad7-8eeb-4aaf-b768-1e1319f23ab3","transitions":[{"currentSymbol":"_","nextSymbol":"_","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q6","target":"q7","id":"d0bcd409-6d86-4479-952a-5013309d016f","transitions":[{"currentSymbol":"b","nextSymbol":"_","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q7","target":"q7","id":"8abb3a8a-7c2e-4c90-9f45-9b20e855146a","transitions":[{"currentSymbol":"b","nextSymbol":"b","direction":"L"},{"currentSymbol":"a","nextSymbol":"a","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q7","target":"q0","id":"36caa69f-3261-4223-b6d7-874a09b5e589","transitions":[{"currentSymbol":"*","nextSymbol":"*","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q0","target":"q4","id":"9f4a7a5f-99cb-4b68-b09f-24bef5776847","transitions":[{"currentSymbol":"_","nextSymbol":"_","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"id":"q8","name":"Reject","reject":true,"start":false,"accept":false},"position":{"x":565.2203909013059,"y":252.6871277765529},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""}],"transitionFunction":{"q0,a":["q1","*","R"],"q1,a":["q1","a","R"],"q1,b":["q1","b","R"],"q1,_":["q2","_","L"],"q2,a":["q3","_","L"],"q3,a":["q3","a","L"],"q3,b":["q3","b","L"],"q3,*":["q0","*","R"],"q0,_":["q4","_","L"],"q7,*":["q0","*","R"],"q0,b":["q5","*","R"],"q5,a":["q5","a","R"],"q5,b":["q5","b","R"],"q5,_":["q6","_","L"],"q6,b":["q7","_","L"],"q7,b":["q7","b","L"],"q7,a":["q7","a","L"]},"startState":"q0","acceptState":"q4","rejectState":"q8"}`,
+    "same_num_1s_0s":`{"identifier":"tmSimulatorDelanoMartin","elements":[{"data":{"id":"q5","name":"Reject","reject":true,"start":false,"accept":false},"position":{"x":521.9919347582872,"y":205.374279678426},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q1","name":"q1"},"position":{"x":91.00211756334748,"y":105.41915226275839},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q2","name":"q2"},"position":{"x":511.3151492312046,"y":104.91254494168223},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q3","name":"q3"},"position":{"x":282.59814326358634,"y":207.7945810430188},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q4","name":"Accept","accept":true,"start":false,"reject":false},"position":{"x":482.72694839229626,"y":24.357182461112274},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q0","name":"Start","start":true,"accept":false,"reject":false},"position":{"x":283.9069152906075,"y":20.385463531181347},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"source":"q0","target":"q4","id":"1e7ae211-cfdf-4e2a-8fb0-67c7c0ca6f04","transitions":[{"currentSymbol":"_","nextSymbol":"_","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q0","target":"q2","id":"7eb3712b-0532-450e-a2d4-66e2886fe6fe","transitions":[{"currentSymbol":"1","nextSymbol":"x","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q2","target":"q3","id":"b55cc0ae-865f-407d-b8c7-7b5be6e29a81","transitions":[{"currentSymbol":"0","nextSymbol":"x","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q2","target":"q2","id":"7cb23667-7071-494c-b616-5437eebe3a1d","transitions":[{"currentSymbol":"1","nextSymbol":"1","direction":"R"},{"currentSymbol":"x","nextSymbol":"x","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q0","target":"q0","id":"81d1adfb-c303-40a1-abfd-1e3218bfb348","transitions":[{"currentSymbol":"x","nextSymbol":"x","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q3","target":"q3","id":"9c92d627-3cff-43a1-aab6-5fa5100b72da","transitions":[{"currentSymbol":"1","nextSymbol":"1","direction":"L"},{"currentSymbol":"0","nextSymbol":"0","direction":"L"},{"currentSymbol":"x","nextSymbol":"x","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q3","target":"q0","id":"cf7387ac-07e1-4658-aa08-5eeade6b8982","transitions":[{"currentSymbol":"_","nextSymbol":"_","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q1","target":"q3","id":"87e3616b-30e6-416f-85b5-b9b8d5fd8dd8","transitions":[{"currentSymbol":"1","nextSymbol":"x","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q1","target":"q1","id":"2facf1b9-9e09-4ece-bbd1-b75ca3dfbdca","transitions":[{"currentSymbol":"0","nextSymbol":"0","direction":"R"},{"currentSymbol":"x","nextSymbol":"x","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q0","target":"q1","id":"37163b79-001f-4d23-939a-e9c7fdaf7c19","transitions":[{"currentSymbol":"0","nextSymbol":"x","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""}],"transitionFunction":{"q0,x":["q0","x","R"],"q0,_":["q4","_","L"],"q0,1":["q2","x","R"],"q2,1":["q2","1","R"],"q2,x":["q2","x","R"],"q2,0":["q3","x","L"],"q3,1":["q3","1","L"],"q3,0":["q3","0","L"],"q3,x":["q3","x","L"],"q1,1":["q3","x","L"],"q3,_":["q0","_","R"],"q0,0":["q1","x","R"],"q1,0":["q1","0","R"],"q1,x":["q1","x","R"]},"startState":"q0","acceptState":"q4","rejectState":"q5"}`,
+    "unary_0_addition":`{"identifier":"tmSimulatorDelanoMartin","elements":[{"data":{"id":"q0","name":"Start","start":true,"accept":false,"reject":false},"position":{"x":15.657141848733337,"y":103.08570764640484},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q1","name":"q1"},"position":{"x":122.51427782366508,"y":95.65713669627588},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q2","name":"q2"},"position":{"x":243.65712716422948,"y":112.22856420040969},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"id":"q3","name":"Accept","accept":true,"start":false,"reject":false},"position":{"x":360.2285482277915,"y":116.22856394278683},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""},{"data":{"source":"q0","target":"q1","id":"16c48d1f-0345-46c9-a81b-67b732883fe5","transitions":[{"currentSymbol":"_","nextSymbol":"0","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q1","target":"q2","id":"081da5ab-f37b-48b7-97e8-342af808a8aa","transitions":[{"currentSymbol":"_","nextSymbol":"_","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q2","target":"q3","id":"125c1433-a87b-4ad9-b512-325c05d5ee1a","transitions":[{"currentSymbol":"0","nextSymbol":"_","direction":"L"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q0","target":"q0","id":"75b6034e-f56b-4646-a9f4-55580a0ad9ae","transitions":[{"currentSymbol":"0","nextSymbol":"0","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"source":"q1","target":"q1","id":"70853885-e3e9-4483-bb71-9ae92bf3a67e","transitions":[{"currentSymbol":"0","nextSymbol":"0","direction":"R"}]},"position":{"x":0,"y":0},"group":"edges","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":true,"classes":""},{"data":{"id":"q4","name":"Reject","reject":true,"start":false,"accept":false},"position":{"x":418.5142587595725,"y":217.94284310609092},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"pannable":false,"classes":""}],"transitionFunction":{"q0,0":["q0","0","R"],"q0,_":["q1","0","R"],"q1,0":["q1","0","R"],"q1,_":["q2","_","L"],"q2,0":["q3","_","L"]},"startState":"q0","acceptState":"q3","rejectState":"q4"}`
+  }
   //define global variables for tm
   var input = [];
   var initialState = null;
@@ -876,6 +883,84 @@ But we dont need to delete the transitions stored in the edge's data because the
       });
   }
 
+
+  async function loadIntoCy(json) {
+
+     // Show loader
+     showLoader();
+
+
+     // Make start state
+     initialState = json.startState;
+     acceptState = json.acceptState;
+     rejectState = json.rejectState;
+
+     // Clear the graph first if elements exist
+     if (cy.elements().length > 0) {
+       await cy.elements().remove();
+     }
+
+     // Add the transition function
+     transitionFunction = json.transitionFunction;
+
+     await cy.json(json);
+
+
+     // Add the transition function to the edges
+     cy.edges().forEach((edge) => {
+       var sourceId = edge.source().id();
+       var targetId = edge.target().id();
+
+       if (edge.data("transitions")) {
+         // Get all transitions for this edge
+         var transitions = edge.data("transitions").map(t => {
+           var transitionId = sourceId + "," + t.currentSymbol;
+           var transition = transitionFunction[transitionId];
+           return {
+             currentSymbol: t.currentSymbol,
+             nextSymbol: transition[1],
+             direction: transition[2],
+           };
+         });
+
+         // Update the edge data with all transitions
+         edge.data("transitions", transitions);
+
+         // Update the edge label
+         var label = transitions
+           .map((t) => `(${t.currentSymbol}, ${t.nextSymbol}, ${t.direction})`)
+           .join(", ");
+         edge.style({
+           "label": label,
+           "text-wrap": "wrap",
+           "text-background-shape": "roundrectangle",
+           "font-size": "8px",
+           "font-family": "Arial, sans-serif",
+           "text-background-color": "#999999",
+           "text-background-opacity": 0.8,
+         });
+       }
+     });
+
+     if (initialState != null) {
+       makeStartState(cy.$("#" + initialState));
+     }
+     if (acceptState != null) {
+       makeAcceptState(cy.$("#" + acceptState));
+     }
+     if (rejectState != null) {
+       makeRejectState(cy.$("#" + rejectState));
+     }
+
+     //fit the graph to the canvas
+      await cy.fit();
+
+      // Hide loader
+      hideLoader();
+
+      
+
+    }
 
 
 
@@ -1955,6 +2040,41 @@ But we dont need to delete the transitions stored in the edge's data because the
     document.getElementById("dropdownMenuAreaGuides").classList.toggle("hidden");
   });
 
+  
+  //Load examples functionality
+  document.getElementById("dropdownMenuButtonExamples").addEventListener("click", function () {
+    document.getElementById("dropdownMenuAreaExamples").classList.toggle("hidden");
+  });
+
+  // // //Add event listeners to all the examples
+  // document.getElementById("0n1n").addEventListener("click", function () {
+
+  //   var jsonParsed = JSON.parse(exampleTuringMachines["0n1n"]);
+
+  //   //load into cytoscpe from examples array defined above
+  //   loadIntoCy(jsonParsed);
+   
+
+  // });
+
+// Assuming exampleTuringMachines is an object with keys as IDs and values as JSON strings
+Object.keys(exampleTuringMachines).forEach((key) => {
+  document.getElementById(key).addEventListener("click", function () {
+      var jsonParsed = JSON.parse(exampleTuringMachines[key]);
+      // Assuming loadIntoCy is a function that loads JSON into Cytoscape
+      loadIntoCy(jsonParsed);
+  });
+});
+
+
+
+  
+
+
+
+
+
+
 
   window.addEventListener('click', function (event) {
     if (!event.target.matches('#dropdownMenuButton') ) {
@@ -1968,7 +2088,14 @@ But we dont need to delete the transitions stored in the edge's data because the
         document.getElementById("dropdownMenuAreaGuides").classList.add('hidden');
       }
     }
+
+    if (!event.target.matches('#dropdownMenuButtonExamples') ) {
+      if (!document.getElementById("dropdownMenuAreaExamples").classList.contains('hidden')) {
+        document.getElementById("dropdownMenuAreaExamples").classList.add('hidden');
+      }
+    }
   });
+
 
 
 
@@ -2206,6 +2333,13 @@ But we dont need to delete the transitions stored in the edge's data because the
     document.getElementById("navbarMobile").classList.toggle("hidden");
   }
   );
+
+  
+  
+  
+
+
+
 
 
 });///document ready end here
