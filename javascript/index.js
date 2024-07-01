@@ -555,7 +555,7 @@ But we dont need to delete the transitions stored in the edge's data because the
             <option value="250" selected>Fast</option>
             <option value="150">Faster</option>
             <option value="50">Fastest</option>
-            <option value="0">Instant</option>
+            <option value="0">"Instant"</option>
           </select>
           
         <button
