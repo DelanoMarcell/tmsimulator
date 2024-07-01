@@ -1,17 +1,13 @@
-# TMSimulator
+# DrawTurings
 
-## Description
-
-TMSimulator is a project that simulates a Turing Machine. It provides a platform to experiment with different Turing Machine configurations and observe their behavior.
+DrawTurings is a platform designed for creating and simulating Turing machines through an intuitive graphical interface. This tool allows you to design custom machines, simulate their behavior step-by-step or in real-time, and visualize tape and state transitions dynamically.
 
 ## Features
 
-- Interactive Turing Machine simulation
-- Customizable Turing Machine configurations
-- Step-by-step execution with visual feedback
-- Input tape manipulation
-- Error handling and validation
+- **Graphical Design Interface:** Easily create and customize Turing machine configurations.
+- **Interactive Simulation:** Run simulations step-by-step or at full speed with visual feedback.
+- **Export and Import:** Share your Turing machine designs effortlessly using JSON files.
 
 ## Contact
 
-For any questions or inquiries, please contact [delanomartin14@gmail.com](mailto:delanomartin14@gmail.com).
+For questions, suggestions, or feedback, please reach out via [delanomartin14@gmail.com](mailto:delanomartin14@gmail.com).
