@@ -1946,14 +1946,14 @@ But we dont need to delete the transitions stored in the edge's data because the
 
     var TapeInput = input.split("");
 
-    if (input === "") {
+    // if (input === "") {
 
-      document.getElementById("tmStatusDiv").style.borderColor = "red";
-      document.getElementById("tmStatus").innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
-        Please enter an input string.
-        </p>`;
-      return;
-    }
+    //   document.getElementById("tmStatusDiv").style.borderColor = "red";
+    //   document.getElementById("tmStatus").innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+    //     Please enter an input string.
+    //     </p>`;
+    //   return;
+    // }
 
     // RenderTape(TapeInput);
 
