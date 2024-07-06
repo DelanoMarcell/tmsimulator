@@ -22,19 +22,19 @@
   <title>DrawTurings - Draw Turing Machines</title>
 
    <!-- Standard favicon -->
-   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+   <link rel="icon" href="./favicon.ico" type="image/x-icon">
+   <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
    
    <!-- Apple Touch Icon -->
-   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
    
    <!-- Android Icons -->
-   <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-   <link rel="icon" type="image/png" sizes="384x384" href="/android-chrome-384x384.png">
+   <link rel="icon" type="image/png" sizes="192x192" href="./android-chrome-192x192.png">
+   <link rel="icon" type="image/png" sizes="384x384" href="./android-chrome-384x384.png">
    
    <!-- Favicon in PNG format -->
-   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
 
 
   <link href="./src/output.css" rel="stylesheet">
@@ -46,10 +46,10 @@
   
   <link rel="stylesheet" href="./src/style.var.css"></link>
   <script src="./javascript/index.var.js"></script>
-  <script src="./javascript/c.js"></script>
-  <script src="./javascript/lodash.js"></script>
-  <script src="./javascript/cedge.js"></script>
-  <script src="./javascript/cctx.js"></script>
+  <script src="./javascript/c.min.js"></script>
+  <script src="./javascript/lodash.min.js"></script>
+  <script src="./javascript/cedge.min.js"></script>
+  <script src="./javascript/cctx.min.js"></script>
   <script src="./javascript/tour.js"></script>
   <script src="./javascript/popper.min.js"></script>
   <script src="./javascript/tippy-bundle.umd.min.js"></script>
@@ -470,16 +470,20 @@ data-twe-navbar-ref>
 
   <!--Button for adding a state-->
   <button
-    class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
+    class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2 ml-2 mr-1"
     type="button" id="addState"> Enable state mode </button>
 
   <!--Button for adding enabling and disabling draw mode-->
   <button
-    class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
+    class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2 ml-1 mr-1"
     type="button" id="drawMode">Enable draw mode</button>
   <button
-    class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
+    class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2 ml-1 mr-0"
     type="button" id="fitContent">Fit content</button>
+    <button
+    class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2 ml-2 mr-1"
+    type="button" id="undo">Undo</button>
+    
 
   <!--Take a tour button-->
 <!--   
@@ -506,7 +510,7 @@ data-twe-navbar-ref>
         <div class="flex flex-col p-2">
           <label for="tminput" class="text-center text-lg font-semibold">Tape input:</label>
           <input type="text" name="tminput" id="tminput" autocomplete="tminput"
-            class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
+            class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold placeholder:text-red-400">
             <label for="speed" class="text-center text-lg font-semibold mt-2">Animation Speed:</label>
             <select id="speed" class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
             <option value="3500">Slower</option>
@@ -674,7 +678,7 @@ data-twe-navbar-ref>
   <!--END OF MODAL-->
 
 
-  <script src="./javascript/index.min.js"></script>
+  <script src="./javascript/index.js"></script>
 
   <script defer>
     // Zeroes followed by ones, equal length

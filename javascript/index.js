@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", function () {
   //Define global variable(Current Selected Edge)
   var currentEdge = null;
 
+  var StoredInput = null;
+
 
   let notifier = new AWN();
 
@@ -24,7 +26,11 @@ document.addEventListener("DOMContentLoaded", function () {
   var acceptState = null;
   var rejectState = null;
 
+  
+
   var headPosition = 0;
+
+  var snapshots = [];
 
   var transitionFunction = {};
 
@@ -216,6 +222,55 @@ Alert functionality, to show users messages when they perform certain actions
   /*
    Functions for reusability
   */
+
+   function takeSnapshot() {
+
+    if(snapshots.length === 11){
+      snapshots.shift();//remove the first element in the array
+    }
+
+
+    // Extract nodes and edges
+   const elements = cy.elements().jsons();
+
+   // Create the JSON object to export
+   const json = {
+     // identifier: "tmSimulatorDelanoMartin",
+     elements: elements,
+     transitionFunction: transitionFunction,
+     startState: initialState,
+     acceptState: acceptState,
+     rejectState: rejectState
+   };
+
+   
+  //  // Convert the JSON object to a string
+   const jsonString = JSON.stringify(json) //(json, null, 2);
+
+   var compressed = LZString.compress(jsonString);
+
+
+   snapshots.push(compressed);//trying the appraoch of adding the json object to the snapshots array
+
+
+  //  //Add to the snap shots array
+  //  snapshots.push(jsonString);
+
+   console.log("snap taken");
+   console.log(snapshots);
+
+   //print the size of the entire snapshots array in memory
+   // Calculate the size of the snapshots array in kilobytes
+    const sizeInBytes = JSON.stringify(snapshots).length;
+    const sizeInKB = sizeInBytes / 1024; // Convert bytes to kilobytes
+
+    // Print the size in KB
+    console.log("Size of snapshots array: " + sizeInKB.toFixed(2) + " KB");
+
+   }
+
+
+
   function makeStartState(ele) {
     //check if some other node is already a start state, if it is then remove the start state property from that node and update the style to normal
     cy.nodes().forEach((node) => {
@@ -240,7 +295,39 @@ Alert functionality, to show users messages when they perform certain actions
 
     //make the start state variable equal to the nodes id
     initialState = ele.id();
+
+    //Take snapshot
+    takeSnapshot();
   }
+  function makeStartState_(ele) {
+    //check if some other node is already a start state, if it is then remove the start state property from that node and update the style to normal
+    cy.nodes().forEach((node) => {
+      if (node !== ele && node.data("start") === true) {
+        node.data("start", false);
+        node.style("border-color", "black");
+        node.style("border-width", "1");
+      }
+    });
+    ele.data("start", true);
+    ele.data("accept", false);
+    ele.data("reject", false);
+    ele.style("border-color", "green");
+    ele.style("border-width", "3");
+
+    //Remove this node as the accept or reject state if it is, since it will now be the start state
+    if (ele.id() === rejectState) {
+      rejectState = null;
+    } else if (ele.id() === acceptState) {
+      acceptState = null;
+    }
+
+    //make the start state variable equal to the nodes id
+    initialState = ele.id();
+
+  
+  }
+
+
 
 
   function makeAcceptState(ele) {
@@ -282,6 +369,51 @@ Alert functionality, to show users messages when they perform certain actions
 
     acceptState = ele.id();
 
+    //Take snapshot
+    takeSnapshot();
+
+
+  }
+  function makeAcceptState_(ele) {
+    //Before making accept state, check if there are any outgoing edges from this state, because an accept state should not have any outgoing edges
+    var outgoingEdges = cy.edges(`[source = "${ele.id()}"]`);
+
+    if (outgoingEdges.length > 0) {
+
+      notifier.info("Accept states cannot have outgoing edges. Remove any outgoing edges from this state first.", { durations: { info: 3000 }, labels: { info: "Oops!" } });
+
+
+      //clear the control panel selected radios
+      document.getElementById("accept-state").checked = false;
+      return;
+
+    }
+
+
+
+
+    cy.nodes().forEach((node) => {
+      if (node !== ele && node.data("accept") === true) {
+        node.data("accept", false);
+        node.style("border-color", "black");
+        node.style("border-width", "1");
+      }
+    });
+    ele.data("accept", true);
+    ele.data("start", false);
+    ele.data("reject", false);
+    ele.style("border-color", "blue");
+    ele.style("border-width", "3");
+
+    if (ele.id() === initialState) {
+      initialState = null;
+    } else if (ele.id() === rejectState) {
+      rejectState = null;
+    }
+
+    acceptState = ele.id();
+
+
 
   }
 
@@ -319,22 +451,45 @@ Alert functionality, to show users messages when they perform certain actions
     }
 
     rejectState = ele.id();
+
+    //Take snapshot
+    takeSnapshot();
   }
 
-  function scrollToCurrentCell() {
-    const container = document.getElementById('tape-container');
-    const currentCell = document.querySelector('.current-cell');
+  function makeRejectState_(ele) {
+    //Before making reject state, check if there are any outgoing edges from this state, because a reject state should not have any outgoing edges
+    var outgoingEdges = cy.edges(`[source = "${ele.id()}"]`);
 
-    if (currentCell) {
-      const containerRect = container.getBoundingClientRect();
-      const currentCellRect = currentCell.getBoundingClientRect();
+    if (outgoingEdges.length > 0) {
+      notifier.info("Reject states cannot have outgoing edges. Remove any outgoing edges from this state first.", { durations: { info: 3000 }, labels: { info: "Oops!" } });
 
-      // Check if the current cell is outside the visible area of the container
-      if (currentCellRect.left < containerRect.left || currentCellRect.right > containerRect.right) {
-        // Scroll the container to center the current cell
-        container.scrollLeft = currentCell.offsetLeft - (container.clientWidth / 2) + (currentCell.clientWidth / 2);
-      }
+
+      //clear the control panel selected radios
+      document.getElementById("reject-state").checked = false;
+      return;
     }
+    cy.nodes().forEach((node) => {
+      if (node !== ele && node.data("reject") === true) {
+        node.data("reject", false);
+        node.style("border-color", "black");
+        node.style("border-width", "1");
+      }
+    });
+    ele.data("reject", true);
+
+    ele.data("start", false);
+    ele.data("accept", false);
+    ele.style("border-color", "red");
+    ele.style("border-width", "3");
+
+    if (ele.id() === initialState) {
+      initialState = null;
+    } else if (ele.id() === acceptState) {
+      acceptState = null;
+    }
+
+    rejectState = ele.id();
+
   }
 
 
@@ -371,6 +526,9 @@ Alert functionality, to show users messages when they perform certain actions
     } else if (ele.id() === rejectState) {
       rejectState = null;
     }
+
+    // //Take snapshot
+    // takeSnapshot();
   }
 
 
@@ -397,6 +555,9 @@ But we dont need to delete the transitions stored in the edge's data because the
 
     console.log("transitionFunction after edge deleted", transitionFunction);
     //console.log("transition stored in edge", ele.data("transitions"));
+
+    //Take snapshot
+    takeSnapshot();
   }
 
   //check that at any given time that an edge goes away, the transition function is updated, this cant be done in the delete edge function because an edge doesnt only go away when it is deleted, it can also go away when nodes are removed
@@ -433,6 +594,9 @@ But we dont need to delete the transitions stored in the edge's data because the
 
 
     console.log(transitionFunction);
+
+    //Take snapshot
+    takeSnapshot();
   }
 
   // function RenderTape(input, currentIndex = 0){
@@ -531,12 +695,7 @@ But we dont need to delete the transitions stored in the edge's data because the
 
   function showMainControlPanel() {
 
-    var tmInput = "";
-
-    if (document.getElementById("tminput") !== null) {
-      tmInput = document.getElementById("tminput").value;
-    }
-
+    
     document.getElementById("control").innerHTML = ` <p class="text-center text-lg font-bold">Control Panel</p>
 
       
@@ -544,7 +703,7 @@ But we dont need to delete the transitions stored in the edge's data because the
       <div class="flex flex-col p-2">
       
         <label for="tm" class="text-center text-lg font-semibold">Tape input:</label>
-        <input type="text" name="tm" id="tminput" autocomplete="tm" value="${tmInput}"
+        <input type="text" name="tm" id="tminput" autocomplete="tm"
           class="mt-1 p-2 w-full border-gray-300 focus:ring-blue-500 bg-gray-50 rounded-sm text-black font-bold">
 
           <label for="speed" class="text-center text-lg font-semibold mt-2">Animation Speed:</label>
@@ -574,10 +733,19 @@ But we dont need to delete the transitions stored in the edge's data because the
 
 `;
 
-    // //Add event listener to the stop tm button
-    // var stopTm = document.getElementById("tmhalt");
+    
+    //Listen for event changes from the input field and store it in global variable 
+    var tmInput = document.getElementById("tminput");
 
-    //Create function out of this code
+    //check if stored input is not null, if it is not null, then set the input field to the stored input
+    if (StoredInput !== null) {
+      tmInput.value = StoredInput;
+    }
+
+    tmInput.addEventListener("input", function () {
+      StoredInput = tmInput.value;
+      console.log(StoredInput);
+    });
 
 
 
@@ -590,18 +758,15 @@ But we dont need to delete the transitions stored in the edge's data because the
       // Get the input string from the input field  
       var input = document.getElementById("tminput").value;
 
-      var TapeInput = input.split("");
 
+      // if (input === "") {
 
-
-      if (input === "") {
-
-        document.getElementById("tmStatusDiv").style.borderColor = "red";
-        document.getElementById("tmStatus").innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
-      Please enter an input string.
-      </p>`;
-        return;
-      }
+      //   document.getElementById("tmStatusDiv").style.borderColor = "red";
+      //   document.getElementById("tmStatus").innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
+      // Please enter an input string.
+      // </p>`;
+      //   return;
+      // }
 
       // RenderTape(TapeInput);
 
@@ -963,6 +1128,135 @@ But we dont need to delete the transitions stored in the edge's data because the
 
     }
 
+  async function loadIntoCy_noFit(json) {
+  // Show loader
+  showLoader();
+
+
+  // Make start state
+  initialState = json.startState;
+  acceptState = json.acceptState;
+  rejectState = json.rejectState;
+
+  // Clear the graph first if elements exist
+  if (cy.elements().length > 0) {
+    await cy.elements().remove();
+  }
+
+  // Add the transition function
+  transitionFunction = json.transitionFunction;
+
+  await cy.json(json);
+  
+  //Check for nodes that dont have name, delete them(cytoscape edgehandles creates nodes without names when edges are created)
+  cy.nodes().forEach((node) => {
+    if (node.data("name") === undefined) {
+      node.remove();
+    }
+  });
+
+
+  // Add the transition function to the edges
+  cy.edges().forEach((edge) => {
+    var sourceId = edge.source().id();
+    var targetId = edge.target().id();
+
+    if (edge.data("transitions")) {
+      // Get all transitions for this edge
+      var transitions = edge.data("transitions").map(t => {
+        var transitionId = sourceId + "," + t.currentSymbol;
+        var transition = transitionFunction[transitionId];
+        return {
+          currentSymbol: t.currentSymbol,
+          nextSymbol: transition[1],
+          direction: transition[2],
+        };
+      });
+
+      // Update the edge data with all transitions
+      edge.data("transitions", transitions);
+
+      // Update the edge label
+      var label = transitions
+        .map((t) => `(${t.currentSymbol}, ${t.nextSymbol}, ${t.direction})`)
+        .join(", ");
+      edge.style({
+        "label": label,
+        "text-wrap": "wrap",
+        "text-background-shape": "roundrectangle",
+        "font-size": "8px",
+        "font-family": "Arial, sans-serif",
+        "text-background-color": "#999999",
+        "text-background-opacity": 0.8,
+      });
+    }
+  });
+
+  if (initialState != null) {
+    makeStartState_(cy.$("#" + initialState));
+  }
+  if (acceptState != null) {
+    makeAcceptState_(cy.$("#" + acceptState));
+  }
+  if (rejectState != null) {
+    makeRejectState_(cy.$("#" + rejectState));
+  }
+
+  //Unselect all elements
+  cy.elements().unselect();
+
+   // Hide loader
+   hideLoader();
+
+  }
+
+  
+
+
+    //Ensure that whenever ctrl + z is pressed, the last snapshot is loaded
+    document.addEventListener("keydown", function (event) {
+    
+      if (event.ctrlKey && event.key === "z") {
+        // console.log("the length of snapshots", snapshots.length);
+        // console.log("the snapshots", snapshots);
+        if (snapshots.length > 1) {
+          snapshots.pop();
+          var lastSnapshot = snapshots[snapshots.length - 1];
+
+          lastSnapshot_decompressed = LZString.decompress(lastSnapshot);
+
+
+          var json = JSON.parse(lastSnapshot_decompressed);
+          loadIntoCy_noFit(json);
+        
+        }
+      }
+    });
+
+    document.getElementById("undo").addEventListener("click", function () {
+      
+        // console.log("the length of snapshots", snapshots.length);
+        // console.log("the snapshots", snapshots);
+        if (snapshots.length > 1) {
+          snapshots.pop();
+          var lastSnapshot = snapshots[snapshots.length - 1];
+
+          lastSnapshot_decompressed = LZString.decompress(lastSnapshot);
+
+
+          var json = JSON.parse(lastSnapshot_decompressed);
+          loadIntoCy_noFit(json);
+        
+        }
+      
+    });
+
+    //Ensure that whenever ctrl + y is pressed, the next snapshot is loaded
+
+
+
+
+    
 
 
   /*
@@ -1169,6 +1463,9 @@ But we dont need to delete the transitions stored in the edge's data because the
         data: { id: newNodeId, name: newNodeId },
         position: { x: event.position.x, y: event.position.y },
       });
+
+      //Take snapshot
+      takeSnapshot();
     }
   }
 
@@ -1282,6 +1579,12 @@ But we dont need to delete the transitions stored in the edge's data because the
     showEdgeControlPanel(e.target);
   });
 
+  
+  //When an edge is created in general(on end of drag), take a snapshot of the graph
+  cy.on("ehcomplete", function (event, sourceNode, targetNode, addedEles) {
+    //alert("ehcomplete");
+    takeSnapshot();
+  });
 
   /*
   
@@ -1359,6 +1662,9 @@ But we dont need to delete the transitions stored in the edge's data because the
 
     // Close the modal
     document.getElementById("modalTransitionDelete").classList.add("hidden");
+
+    // Take snapshot
+    takeSnapshot();
   });
 
 
@@ -1443,18 +1749,7 @@ But we dont need to delete the transitions stored in the edge's data because the
 
       currentEdge.data("transitions", transitions);
 
-      //// Determine offset based on edge direction so that nodes dont overlap, one way is to get the id digit, if the source id digit is less than the target id digit, then offset is 10, else offset is -10
-      //   var offsetX = 0;
-      //   var offsetY = 0;
-
-      //   if(currentEdge.source().id().charAt(1) < currentEdge.target().id().charAt(1)){
-      //     offsetX = 15;
-      //     offsetY = 15;
-      //     }
-      //     else{
-      //         offsetX = -15;
-      //         offsetY = -15;
-      //     }
+     
 
       // Update the edge label to show all transitions, dont add it perfectly in center of edge, add a few pixels away from center
       var label = transitions
@@ -1494,6 +1789,9 @@ But we dont need to delete the transitions stored in the edge's data because the
 
       //close the modal
       document.getElementById("modalTransition").classList.add("hidden");
+
+      //Take snapshot
+      takeSnapshot();
     });
 
 
@@ -1671,6 +1969,7 @@ But we dont need to delete the transitions stored in the edge's data because the
     }
   });
 
+
   async function getEdgeTransition(currentState, currentSymbol, writeSymbol, move) {
     const edge = cy.edges().filter(
       edge => edge.source().id() === this.currentState && edge.data('transitions').some(
@@ -1790,13 +2089,13 @@ But we dont need to delete the transitions stored in the edge's data because the
               Final state: ${stateStatus.toUpperCase()} 
           </p>`;
 
-        // //Clear the tape
-        // RenderTape([], 0);
+        //Clear the tape
+        RenderTape([], 0);
 
-        //Render the final tape after the delay to make the transition smooth
-        setTimeout(() => {
-          RenderTape(this.tape, this.currentIdx);
-        }, this.delay);
+        // //Render the final tape after the delay to make the transition smooth
+        // setTimeout(() => {
+        //   RenderTape(this.tape, this.currentIdx);
+        // }, this.delay);
 
         //Hide the halt button
         document.getElementById("tmhalt").classList.add("hidden");
@@ -1814,13 +2113,13 @@ But we dont need to delete the transitions stored in the edge's data because the
           Final state: ${stateStatus.toUpperCase()}
       </p>`;
 
-        // //Clear the tape
-        // RenderTape([], 0);
+        //Clear the tape
+        RenderTape([], 0);
 
-        //Render the final tape after the delay to make the transition smooth
-        setTimeout(() => {
-          RenderTape(this.tape, this.currentIdx);
-        }, this.delay);
+        // //Render the final tape after the delay to make the transition smooth
+        // setTimeout(() => {
+        //   RenderTape(this.tape, this.currentIdx);
+        // }, this.delay);
        
 
         //Hide the halt button
@@ -1858,6 +2157,15 @@ But we dont need to delete the transitions stored in the edge's data because the
               Final tape: ${finalTape}<br>
               Final state: ${stateName}
           </p>`;
+
+        //Clear the tape
+        RenderTape([], 0);
+
+        // //Render the final tape after the delay to make the transition smooth
+        // setTimeout(() => {
+        //   RenderTape(this.tape, this.currentIdx);
+        // }, this.delay);
+       
 
       }
 
@@ -1930,11 +2238,19 @@ But we dont need to delete the transitions stored in the edge's data because the
 
   }
 
+  var tmInput = document.getElementById("tminput");
 
+  
+  //Add event listener to input field and stored value globally
+  tmInput.addEventListener("input", function () {
+    StoredInput = tmInput.value;
+    console.log(StoredInput);
+  });
 
 
 
   var runTm = document.getElementById("runtm");
+
 
 
   runTm.addEventListener("click", function () {
@@ -1944,18 +2260,6 @@ But we dont need to delete the transitions stored in the edge's data because the
     // Get the input string from the input field  
     var input = document.getElementById("tminput").value;
 
-    var TapeInput = input.split("");
-
-    // if (input === "") {
-
-    //   document.getElementById("tmStatusDiv").style.borderColor = "red";
-    //   document.getElementById("tmStatus").innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
-    //     Please enter an input string.
-    //     </p>`;
-    //   return;
-    // }
-
-    // RenderTape(TapeInput);
 
 
     if (initialState === null || initialState === undefined) {
@@ -2016,8 +2320,8 @@ But we dont need to delete the transitions stored in the edge's data because the
       tm.halt(true);
       tm.haltFlag = true;
 
-      //Clear the tape
-      RenderTape([], 0);
+      // //Clear the tape
+      // RenderTape([], 0);
 
       //Remove the halt button
       document.getElementById("tmhalt").classList.add("hidden");
@@ -2117,6 +2421,9 @@ Object.keys(exampleTuringMachines).forEach((key) => {
     notifier.info("PNG exported successfully!", { durations: { info: 2000 }, labels: { info: "Exported" } });
   }
   );
+
+
+  
 
 
   //export as json
@@ -2294,29 +2601,6 @@ Object.keys(exampleTuringMachines).forEach((key) => {
       } finally {
         await cy.fit();
         hideLoader();
-
-        // //make layout circle
-        // var CircleLayout = cy.layout({
-        //   name: "circle",
-        //   radius: 100,
-        //   startAngle: 3 / 2 * Math.PI,
-        // });
-
-        // CircleLayout.run();
-
-
-
-
-
-
-
-        // var layout = cy.layout({
-        //   name: "grid",
-        //   rows: 1,
-        // });
-        // layout.run();
-
-
 
       }
     };
