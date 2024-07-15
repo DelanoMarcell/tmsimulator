@@ -250,11 +250,9 @@ Alert functionality, to show users messages when they perform certain actions
    var compressed = LZString.compress(jsonString);
 
 
-   snapshots.push(compressed);//trying the appraoch of adding the json object to the snapshots array
+   snapshots.push(compressed);
 
 
-  //  //Add to the snap shots array
-  //  snapshots.push(jsonString);
 
    console.log("snap taken");
    console.log(snapshots);
@@ -264,10 +262,49 @@ Alert functionality, to show users messages when they perform certain actions
     const sizeInBytes = JSON.stringify(snapshots).length;
     const sizeInKB = sizeInBytes / 1024; // Convert bytes to kilobytes
 
-    // Print the size in KB
-    console.log("Size of snapshots array: " + sizeInKB.toFixed(2) + " KB");
+  // Print the size in KB
+  console.log("Size of snapshots array: " + sizeInKB.toFixed(2) + " KB");
 
    }
+
+   function takeLocalStorageSnapshot() {
+      
+      // Extract nodes and edges
+      const elements = cy.elements().jsons();
+
+      // Create the JSON object to export
+      const json = {
+        // identifier: "tmSimulatorDelanoMartin",
+        elements: elements,
+        transitionFunction: transitionFunction,
+        startState: initialState,
+        acceptState: acceptState,
+        rejectState: rejectState
+      };
+
+      // Convert the JSON object to a string
+      var jsonString = JSON.stringify(json) 
+
+      var compressed = LZString.compress(jsonString);
+
+      localStorage.setItem("snapshot", compressed);
+
+     
+   }
+
+   function takeLocalStorageSnapshot_undo(json) {
+   
+    // Convert the JSON object to a string
+    var jsonString = JSON.stringify(json) 
+
+    var compressed = LZString.compress(jsonString);
+
+    localStorage.setItem("snapshot", compressed);
+
+
+ }
+
+
 
 
 
@@ -298,6 +335,7 @@ Alert functionality, to show users messages when they perform certain actions
 
     //Take snapshot
     takeSnapshot();
+    takeLocalStorageSnapshot();
   }
   function makeStartState_(ele) {
     //check if some other node is already a start state, if it is then remove the start state property from that node and update the style to normal
@@ -371,6 +409,7 @@ Alert functionality, to show users messages when they perform certain actions
 
     //Take snapshot
     takeSnapshot();
+    takeLocalStorageSnapshot();
 
 
   }
@@ -454,6 +493,7 @@ Alert functionality, to show users messages when they perform certain actions
 
     //Take snapshot
     takeSnapshot();
+    takeLocalStorageSnapshot();
   }
 
   function makeRejectState_(ele) {
@@ -558,6 +598,7 @@ But we dont need to delete the transitions stored in the edge's data because the
 
     //Take snapshot
     takeSnapshot();
+    takeLocalStorageSnapshot();
   }
 
   //check that at any given time that an edge goes away, the transition function is updated, this cant be done in the delete edge function because an edge doesnt only go away when it is deleted, it can also go away when nodes are removed
@@ -597,6 +638,9 @@ But we dont need to delete the transitions stored in the edge's data because the
 
     //Take snapshot
     takeSnapshot();
+    takeLocalStorageSnapshot();
+
+
   }
 
   // function RenderTape(input, currentIndex = 0){
@@ -692,6 +736,20 @@ But we dont need to delete the transitions stored in the edge's data because the
     }, delay);
   }
 
+  function clearCanvas_() {
+    cy.elements().remove();
+    initialState = null;
+    acceptState = null;
+    rejectState = null;
+    transitionFunction = {};
+
+    //Take snapshot
+    takeSnapshot();
+    takeLocalStorageSnapshot();
+  }
+
+
+
 
   function showMainControlPanel() {
 
@@ -723,6 +781,9 @@ But we dont need to delete the transitions stored in the edge's data because the
           <button
           class="hidden text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
           type="button" id="tmhalt">Stop</button>
+           <button
+            class="text-white bg-[#111827] hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-[#111827] dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 m-2"
+            type="button" id="clearCanvas">Clear Canvas</button>
       </div>
       
       <div id="tmStatusDiv" class=" border-[#FAF0E6] border-2 border-dashed m-2 rounded-md">
@@ -832,7 +893,15 @@ But we dont need to delete the transitions stored in the edge's data because the
 
     });
 
+    //Clear canvas button
+    var clearCanvas = document.getElementById("clearCanvas");
+
+    clearCanvas.addEventListener("click", function () {
+      clearCanvas_();
+    });
+
   }
+
 
   function showEdgeControlPanel(ele) {
     var clickedEdge = ele;
@@ -1071,6 +1140,13 @@ But we dont need to delete the transitions stored in the edge's data because the
 
      await cy.json(json);
 
+        //Check for nodes that dont have name, delete them(cytoscape edgehandles creates nodes without names when edges are created)
+      cy.nodes().forEach((node) => {
+        if (node.data("name") === undefined) {
+          node.remove();
+        }
+      });
+
 
      // Add the transition function to the edges
      cy.edges().forEach((edge) => {
@@ -1208,7 +1284,25 @@ But we dont need to delete the transitions stored in the edge's data because the
    // Hide loader
    hideLoader();
 
+  
   }
+
+  //Check if snapshot localStorage exists, if it does, then load the graph from the snapshot
+  if (localStorage.getItem("snapshot") !== null) {
+    var snapshot = localStorage.getItem("snapshot");
+
+    //decompress the snapshot
+    var snapshot_decompressed = LZString.decompress(snapshot);
+
+    var json = JSON.parse(snapshot_decompressed);
+
+    loadIntoCy(json);
+
+    //loadIntoCy_noFit(json);
+
+  }
+
+
 
   
 
@@ -1220,14 +1314,23 @@ But we dont need to delete the transitions stored in the edge's data because the
         // console.log("the length of snapshots", snapshots.length);
         // console.log("the snapshots", snapshots);
         if (snapshots.length > 1) {
+          
+         
+
           snapshots.pop();
+
+
           var lastSnapshot = snapshots[snapshots.length - 1];
 
-          lastSnapshot_decompressed = LZString.decompress(lastSnapshot);
+          var lastSnapshot_decompressed = LZString.decompress(lastSnapshot);
 
 
           var json = JSON.parse(lastSnapshot_decompressed);
           loadIntoCy_noFit(json);
+
+          takeLocalStorageSnapshot_undo(json);
+
+         
         
         }
       }
@@ -1238,14 +1341,23 @@ But we dont need to delete the transitions stored in the edge's data because the
         // console.log("the length of snapshots", snapshots.length);
         // console.log("the snapshots", snapshots);
         if (snapshots.length > 1) {
+           
+
           snapshots.pop();
+
+         
+        
           var lastSnapshot = snapshots[snapshots.length - 1];
 
-          lastSnapshot_decompressed = LZString.decompress(lastSnapshot);
+          var lastSnapshot_decompressed = LZString.decompress(lastSnapshot);
 
 
           var json = JSON.parse(lastSnapshot_decompressed);
           loadIntoCy_noFit(json);
+
+            //takelocalstorage snapshot to account for the change in the graph
+            takeLocalStorageSnapshot_undo(json);
+
         
         }
       
@@ -1466,6 +1578,8 @@ But we dont need to delete the transitions stored in the edge's data because the
 
       //Take snapshot
       takeSnapshot();
+      takeLocalStorageSnapshot();
+
     }
   }
 
@@ -1584,6 +1698,8 @@ But we dont need to delete the transitions stored in the edge's data because the
   cy.on("ehcomplete", function (event, sourceNode, targetNode, addedEles) {
     //alert("ehcomplete");
     takeSnapshot();
+    takeLocalStorageSnapshot();
+
   });
 
   /*
@@ -1665,6 +1781,7 @@ But we dont need to delete the transitions stored in the edge's data because the
 
     // Take snapshot
     takeSnapshot();
+    takeLocalStorageSnapshot();
   });
 
 
@@ -1792,6 +1909,7 @@ But we dont need to delete the transitions stored in the edge's data because the
 
       //Take snapshot
       takeSnapshot();
+      takeLocalStorageSnapshot();
     });
 
 
@@ -2245,6 +2363,12 @@ But we dont need to delete the transitions stored in the edge's data because the
   tmInput.addEventListener("input", function () {
     StoredInput = tmInput.value;
     console.log(StoredInput);
+  });
+
+
+  //Clear canvas button
+  document.getElementById("clearCanvas").addEventListener("click", function () {
+    clearCanvas_();
   });
 
 
