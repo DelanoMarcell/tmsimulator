@@ -1,0 +1,1 @@
+npx terser index.js -o index.min.js --compress --mangle --toplevel
