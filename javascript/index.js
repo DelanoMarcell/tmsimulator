@@ -27,6 +27,8 @@ document.addEventListener("DOMContentLoaded", function () {
   var headPosition = 0;
 
   var snapshots = [];
+  const SNAPSHOT_HISTORY_KEY = "snapshotHistory";
+  const SNAPSHOT_LATEST_KEY = "snapshot";
 
   var transitionFunction = {};
 
@@ -245,6 +247,8 @@ Alert functionality, to show users messages when they perform certain actions
 
     // Print the size in KB
     console.log("Size of snapshots array: " + sizeInKB.toFixed(2) + " KB");
+
+    localStorage.setItem(SNAPSHOT_HISTORY_KEY, JSON.stringify(snapshots));
   }
 
   function takeLocalStorageSnapshot() {
@@ -266,7 +270,7 @@ Alert functionality, to show users messages when they perform certain actions
 
     var compressed = LZString.compress(jsonString);
 
-    localStorage.setItem("snapshot", compressed);
+    localStorage.setItem(SNAPSHOT_LATEST_KEY, compressed);
   }
 
   function takeLocalStorageSnapshot_undo(json) {
@@ -275,7 +279,23 @@ Alert functionality, to show users messages when they perform certain actions
 
     var compressed = LZString.compress(jsonString);
 
-    localStorage.setItem("snapshot", compressed);
+    localStorage.setItem(SNAPSHOT_LATEST_KEY, compressed);
+  }
+
+  function hydrateSnapshotsFromStorage() {
+    const raw = localStorage.getItem(SNAPSHOT_HISTORY_KEY);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        snapshots = parsed.filter((entry) => typeof entry === "string");
+      }
+    } catch (error) {
+      console.warn("Ignoring corrupt snapshotHistory from localStorage.", error);
+      localStorage.removeItem(SNAPSHOT_HISTORY_KEY);
+      snapshots = [];
+    }
   }
 
   function makeStartState(ele) {
@@ -527,17 +547,19 @@ Note about these two things below. Delete edge and cy.on(remove , edge)
 We remove the edge transitions from the global transition function when an edge is deleted. This is because the transition function is a global variable that stores all the transitions in the Turing machine. When an edge is deleted, the transitions that were stored in that edge are also deleted from the transition function. This is to ensure that the transition function is always up to date with the transitions in the Turing machine.
 But we dont need to delete the transitions stored in the edge's data because the edge is being deleted, so the data is also deleted.
   */
-  function deleteEdge(ele) {
-    ele.remove();
+  function removeEdgeTransitionsFromTransitionFunction(edge) {
+    const transitions = edge.data("transitions") || [];
+    const sourceId = edge.source().id();
 
-    //delete the transition from the transition function, but all the transitions that have the same source and symbol
-    var transitions = ele.style("label").split(",");
-
-    //delete all transitions, not just the 0th one
-    for (var i = 0; i < transitions.length; i++) {
-      var transitionId = ele.source().id() + "," + transitions[i].split("(")[1];
+    transitions.forEach((t) => {
+      const transitionId = sourceId + "," + t.currentSymbol;
       delete transitionFunction[transitionId];
-    }
+    });
+  }
+
+  function deleteEdge(ele) {
+    removeEdgeTransitionsFromTransitionFunction(ele);
+    ele.remove();
 
     //Show main control panel after deleting edge
     showMainControlPanel();
@@ -553,14 +575,7 @@ But we dont need to delete the transitions stored in the edge's data because the
   //check that at any given time that an edge goes away, the transition function is updated, this cant be done in the delete edge function because an edge doesnt only go away when it is deleted, it can also go away when nodes are removed
   cy.on("remove", "edge", function (e) {
     var ele = e.target;
-
-    //delete the transition from the transition function, but all the transitions that have the same source and symbol
-    var transitions = ele.style("label").split(",");
-    //delete all transitions, not just the 0th one
-    for (var i = 0; i < transitions.length; i++) {
-      var transitionId = ele.source().id() + "," + transitions[i].split("(")[1];
-      delete transitionFunction[transitionId];
-    }
+    removeEdgeTransitionsFromTransitionFunction(ele);
     console.log(transitionFunction);
     //console.log("transition stored in edge", ele.data("transitions"));
   });
@@ -617,15 +632,38 @@ But we dont need to delete the transitions stored in the edge's data because the
       ([keyA], [keyB]) => keyA - keyB
     );
 
+    let currentCell = null;
+
     sortedEntries.forEach(([index, symbol]) => {
+      const cellWrapper = document.createElement("div");
+      cellWrapper.className = "tape-cell-wrapper";
+
+      const headArrow = document.createElement("div");
+      headArrow.className = "tape-head-arrow";
+      headArrow.textContent = "▼";
+
       const cell = document.createElement("div");
       cell.className = "tape-cell";
       cell.textContent = symbol;
       if (index === currentIndex) {
         cell.classList.add("current-cell");
+        headArrow.classList.add("active");
+        currentCell = cell;
       }
-      tapeContainer.appendChild(cell);
+
+      cellWrapper.appendChild(headArrow);
+      cellWrapper.appendChild(cell);
+      tapeContainer.appendChild(cellWrapper);
     });
+
+    if (currentCell) {
+      const targetScrollLeft =
+        currentCell.offsetLeft -
+        tapeContainer.clientWidth / 2 +
+        currentCell.clientWidth / 2;
+
+      tapeContainer.scrollLeft = Math.max(0, targetScrollLeft);
+    }
   }
 
   cy.style()
@@ -640,7 +678,83 @@ But we dont need to delete the transitions stored in the edge's data because the
     "background-color": "red",
   });
 
+  let transitionHighlightTimeout = null;
+
+  function clearTransitionHighlight() {
+    if (transitionHighlightTimeout) {
+      clearTimeout(transitionHighlightTimeout);
+      transitionHighlightTimeout = null;
+    }
+
+    cy.edges(".highlightedEdge").forEach((edge) => {
+      const originalLabel = edge.data("_originalLabel");
+      const originalTextBackgroundColor = edge.data("_originalTextBackgroundColor");
+
+      edge.removeClass("highlightedEdge");
+      if (originalLabel !== undefined) {
+        edge.style("label", originalLabel);
+      }
+      if (originalTextBackgroundColor !== undefined) {
+        edge.style("text-background-color", originalTextBackgroundColor);
+      }
+    });
+
+    cy.nodes(".highlightedNode").removeClass("highlightedNode");
+  }
+
+  function freezeCurrentConfigHighlight(tm) {
+    clearTransitionHighlight();
+
+    const currentState = tm.currentState;
+    const currentSymbol = tm.tape.get(tm.currentIdx) ?? "_";
+
+    cy.nodes(`[id = "${currentState}"]`).addClass("highlightedNode");
+
+    const matchingEdge = cy
+      .edges()
+      .filter(
+        (edge) =>
+          edge.source().id() === currentState &&
+          edge
+            .data("transitions")
+            .some((transition) => transition.currentSymbol === currentSymbol)
+      )[0];
+
+    if (matchingEdge) {
+      const originalLabel = matchingEdge.style("label");
+      const originalTextBackgroundColor = matchingEdge.style(
+        "text-background-color"
+      );
+
+      matchingEdge.data("_originalLabel", originalLabel);
+      matchingEdge.data(
+        "_originalTextBackgroundColor",
+        originalTextBackgroundColor
+      );
+      matchingEdge.addClass("highlightedEdge");
+
+      const transitions = originalLabel.split(",");
+      for (var i = 0; i < transitions.length; i += 3) {
+        const transition = transitions[i];
+        if (transition.includes(currentSymbol)) {
+          matchingEdge.style({
+            label:
+              transitions[i] +
+              "," +
+              transitions[i + 1] +
+              "," +
+              transitions[i + 2],
+            "text-background-color": "red",
+          });
+          break;
+        }
+      }
+    }
+  }
+
   function RenderCurrentOnTm(currentState, nextState, currentSymbol, delay) {
+    clearTransitionHighlight();
+
     // Get edge based on currentState and nextState
     var Edge = cy.edges(
       `[source = "${currentState}"][target = "${nextState}"]`
@@ -656,6 +770,8 @@ But we dont need to delete the transitions stored in the edge's data because the
     // Save the original label style
     const originalLabel = Edge.style("label");
     const originalTextBackgroundColor = Edge.style("text-background-color");
+    Edge.data("_originalLabel", originalLabel);
+    Edge.data("_originalTextBackgroundColor", originalTextBackgroundColor);
 
     // Highlight the label on the edge corresponding to the current symbol
     var transitions = originalLabel.split(",");
@@ -675,13 +791,14 @@ But we dont need to delete the transitions stored in the edge's data because the
     }
 
     // Unhighlight the edge and revert to original label styles after a short time
-    setTimeout(() => {
+    transitionHighlightTimeout = setTimeout(() => {
       Edge.removeClass("highlightedEdge");
       Source.removeClass("highlightedNode");
       Edge.style({
         label: originalLabel,
         "text-background-color": originalTextBackgroundColor,
       });
+      transitionHighlightTimeout = null;
     }, delay);
   }
 
@@ -839,11 +956,11 @@ But we dont need to delete the transitions stored in the edge's data because the
 
       //Add event listener to the stop tm button
       stopTm.addEventListener("click", function () {
+        tm.requestHalt();
         tm.halt(true);
-        tm.haltFlag = true;
 
-        //Clear the tape
-        RenderTape([], 0);
+        //Keep the tape visible at the current halted position
+        RenderTape(tm.tape, tm.currentIdx);
 
         //Remove the halt button
         document.getElementById("tmhalt").classList.add("hidden");
@@ -1112,15 +1229,21 @@ But we dont need to delete the transitions stored in the edge's data because the
 
       if (edge.data("transitions")) {
         // Get all transitions for this edge
-        var transitions = edge.data("transitions").map((t) => {
+        var transitions = edge
+          .data("transitions")
+          .map((t) => {
           var transitionId = sourceId + "," + t.currentSymbol;
           var transition = transitionFunction[transitionId];
+          if (!transition) {
+            return null;
+          }
           return {
             currentSymbol: t.currentSymbol,
             nextSymbol: transition[1],
             direction: transition[2],
           };
-        });
+          })
+          .filter(Boolean);
 
         // Update the edge data with all transitions
         edge.data("transitions", transitions);
@@ -1142,13 +1265,13 @@ But we dont need to delete the transitions stored in the edge's data because the
     });
 
     if (initialState != null) {
-      makeStartState(cy.$("#" + initialState));
+      makeStartState_(cy.$("#" + initialState));
     }
     if (acceptState != null) {
-      makeAcceptState(cy.$("#" + acceptState));
+      makeAcceptState_(cy.$("#" + acceptState));
     }
     if (rejectState != null) {
-      makeRejectState(cy.$("#" + rejectState));
+      makeRejectState_(cy.$("#" + rejectState));
     }
 
     //fit the graph to the canvas
@@ -1191,15 +1314,21 @@ But we dont need to delete the transitions stored in the edge's data because the
 
       if (edge.data("transitions")) {
         // Get all transitions for this edge
-        var transitions = edge.data("transitions").map((t) => {
+        var transitions = edge
+          .data("transitions")
+          .map((t) => {
           var transitionId = sourceId + "," + t.currentSymbol;
           var transition = transitionFunction[transitionId];
+          if (!transition) {
+            return null;
+          }
           return {
             currentSymbol: t.currentSymbol,
             nextSymbol: transition[1],
             direction: transition[2],
           };
-        });
+          })
+          .filter(Boolean);
 
         // Update the edge data with all transitions
         edge.data("transitions", transitions);
@@ -1237,18 +1366,34 @@ But we dont need to delete the transitions stored in the edge's data because the
     hideLoader();
   }
 
+  hydrateSnapshotsFromStorage();
+
   //Check if snapshot localStorage exists, if it does, then load the graph from the snapshot
-  if (localStorage.getItem("snapshot") !== null) {
-    var snapshot = localStorage.getItem("snapshot");
+  if (localStorage.getItem(SNAPSHOT_LATEST_KEY) !== null) {
+    try {
+      var snapshot = localStorage.getItem(SNAPSHOT_LATEST_KEY);
+      var snapshot_decompressed = LZString.decompress(snapshot);
 
-    //decompress the snapshot
-    var snapshot_decompressed = LZString.decompress(snapshot);
+      if (!snapshot_decompressed) {
+        throw new Error("Snapshot decompression returned empty data.");
+      }
 
-    var json = JSON.parse(snapshot_decompressed);
+      var json = JSON.parse(snapshot_decompressed);
+      loadIntoCy(json);
 
-    loadIntoCy(json);
-
-    //loadIntoCy_noFit(json);
+      if (!snapshots.includes(snapshot)) {
+        snapshots.push(snapshot);
+        if (snapshots.length > 11) {
+          snapshots = snapshots.slice(snapshots.length - 11);
+        }
+      }
+      localStorage.setItem(SNAPSHOT_HISTORY_KEY, JSON.stringify(snapshots));
+    } catch (error) {
+      console.warn("Failed to load localStorage snapshot; clearing bad data.", error);
+      localStorage.removeItem(SNAPSHOT_LATEST_KEY);
+      localStorage.removeItem(SNAPSHOT_HISTORY_KEY);
+      snapshots = [];
+    }
   }
 
   //Ensure that whenever ctrl + z is pressed, the last snapshot is loaded
@@ -1625,7 +1770,9 @@ But we dont need to delete the transitions stored in the edge's data because the
   document
     .getElementById("deleteTransitionsSubmit")
     .addEventListener("click", function () {
-      var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      var checkboxes = document.querySelectorAll(
+        '#deleteTransitionsBody input[type="checkbox"]'
+      );
 
       if (checkboxes.length === 0) {
         //Hide the delete button
@@ -1677,6 +1824,13 @@ But we dont need to delete the transitions stored in the edge's data because the
 
       // Update the transitions in the edge data
       currentEdge.data("transitions", transitions);
+
+      // If no transitions remain, remove the edge entirely
+      if (transitions.length === 0) {
+        document.getElementById("modalTransitionDelete").classList.add("hidden");
+        deleteEdge(currentEdge);
+        return;
+      }
 
       console.log("transitions", transitions);
       console.log("transitionFunction", transitionFunction);
@@ -2015,6 +2169,21 @@ But we dont need to delete the transitions stored in the edge's data because the
       this.finalStates = finalStates;
       this.delay = delay;
       this.haltFlag = false;
+      this.pendingDelayTimeout = null;
+      this.pendingDelayResolve = null;
+    }
+
+    requestHalt() {
+      this.haltFlag = true;
+      if (this.pendingDelayTimeout) {
+        clearTimeout(this.pendingDelayTimeout);
+        this.pendingDelayTimeout = null;
+      }
+      if (this.pendingDelayResolve) {
+        const resolve = this.pendingDelayResolve;
+        this.pendingDelayResolve = null;
+        resolve();
+      }
     }
 
     async step() {
@@ -2029,17 +2198,8 @@ But we dont need to delete the transitions stored in the edge's data because the
         const [nextState, writeSymbol, move] =
           this.transitionFunction[stateSymbolPair];
 
-        //Update the tape but should have a delay to show the user the transition
-
-        //console.log("Delay is ", this.delay)
-
-        if (this.delay != 0) {
-          await new Promise((resolve) => setTimeout(resolve, this.delay));
-        }
-
-        if (this.haltFlag) {
-          return;
-        }
+        //Apply and render the transition immediately, then delay before the next step.
+        //This keeps "Start" responsive even on slower animation speeds.
 
         //Change the tape to be sent to render to right array format
         // Change the tape to be sent to render to the right array format
@@ -2066,6 +2226,21 @@ But we dont need to delete the transitions stored in the edge's data because the
         this.currentIdx += move === "R" ? 1 : -1;
 
         this.currentState = nextState;
+
+        if (this.delay != 0) {
+          await new Promise((resolve) => {
+            this.pendingDelayResolve = resolve;
+            this.pendingDelayTimeout = setTimeout(() => {
+              this.pendingDelayTimeout = null;
+              this.pendingDelayResolve = null;
+              resolve();
+            }, this.delay);
+          });
+        }
+
+        if (this.haltFlag) {
+          return;
+        }
       } else {
         return false; // No valid transition, halt
       }
@@ -2074,6 +2249,8 @@ But we dont need to delete the transitions stored in the edge's data because the
     }
 
     async halt(manualHalt) {
+      this.requestHalt();
+
       //Enable user interaction
       document.getElementById("cy").style.pointerEvents = "auto";
       document.getElementById("tminput").style.pointerEvents = "auto";
@@ -2083,7 +2260,23 @@ But we dont need to delete the transitions stored in the edge's data because the
       const finalState = this.currentState;
       const stateName = cy.getElementById(finalState).data("name");
       var stateStatus = "";
-      if (cy.getElementById(finalState).data("accept")) {
+      if (manualHalt) {
+        stateStatus = "halt";
+        document.getElementById("tmStatusDiv").style.borderColor = "red";
+        document.getElementById("tmStatus").innerHTML = `
+          <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">The turing machine was manually halted.</p>
+          <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">
+              Final tape: ${finalTape}<br>
+              Final state: ${stateName}
+          </p>`;
+
+        //Keep the tape visible at the halted position
+        RenderTape(this.tape, this.currentIdx);
+        freezeCurrentConfigHighlight(this);
+
+        //Hide the halt button
+        document.getElementById("tmhalt").classList.add("hidden");
+      } else if (cy.getElementById(finalState).data("accept")) {
         stateStatus = "accept";
         document.getElementById("tmStatusDiv").style.borderColor = "green";
         document.getElementById("tmStatus").innerHTML = `
@@ -2093,8 +2286,9 @@ But we dont need to delete the transitions stored in the edge's data because the
               Final state: ${stateStatus.toUpperCase()} 
           </p>`;
 
-        //Clear the tape
-        RenderTape([], 0);
+        //Keep the tape visible at the halted position
+        RenderTape(this.tape, this.currentIdx);
+        clearTransitionHighlight();
 
         // //Render the final tape after the delay to make the transition smooth
         // setTimeout(() => {
@@ -2113,8 +2307,9 @@ But we dont need to delete the transitions stored in the edge's data because the
           Final state: ${stateStatus.toUpperCase()}
       </p>`;
 
-        //Clear the tape
-        RenderTape([], 0);
+        //Keep the tape visible at the halted position
+        RenderTape(this.tape, this.currentIdx);
+        clearTransitionHighlight();
 
         // //Render the final tape after the delay to make the transition smooth
         // setTimeout(() => {
@@ -2141,28 +2336,12 @@ But we dont need to delete the transitions stored in the edge's data because the
               Status: REJECT
           </p>`;
 
-        //Clear the tape
-        RenderTape([], 0);
+        //Keep the tape visible at the halted position
+        RenderTape(this.tape, this.currentIdx);
+        clearTransitionHighlight();
 
         //Hide the halt button
         document.getElementById("tmhalt").classList.add("hidden");
-      } else if (manualHalt) {
-        stateStatus = "halt";
-        document.getElementById("tmStatusDiv").style.borderColor = "red";
-        document.getElementById("tmStatus").innerHTML = `
-          <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">The turing machine was manually halted.</p>
-          <p class="text-center text-red-600 text-lg font-semibold break-words" id="tmStatus">
-              Final tape: ${finalTape}<br>
-              Final state: ${stateName}
-          </p>`;
-
-        //Clear the tape
-        RenderTape([], 0);
-
-        // //Render the final tape after the delay to make the transition smooth
-        // setTimeout(() => {
-        //   RenderTape(this.tape, this.currentIdx);
-        // }, this.delay);
       }
 
       //ALREADY CLEARED AND REMOVED HALT BUTTON IN THE ONCLICK EVENT OF THE HALT BUTTON
@@ -2223,103 +2402,7 @@ But we dont need to delete the transitions stored in the edge's data because the
     }
   }
 
-  var tmInput = document.getElementById("tminput");
-
-  //Add event listener to input field and stored value globally
-  tmInput.addEventListener("input", function () {
-    StoredInput = tmInput.value;
-    console.log(StoredInput);
-  });
-
-  //Clear canvas button
-  document.getElementById("clearCanvas").addEventListener("click", function () {
-    clearCanvas_();
-  });
-
-  var runTm = document.getElementById("runtm");
-
-  runTm.addEventListener("click", function () {
-    // Get the input string from the input field
-    var input = document.getElementById("tminput").value;
-
-    // Check if the input contains any blank symbol (space or underscore)
-    if (input.includes(" ") || input.includes("_")) {
-      document.getElementById("tmStatusDiv").style.borderColor = "red";
-      document.getElementById(
-        "tmStatus"
-      ).innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
-      Input cannot contain the TM blank symbol ("_") or empty spaces. Please remove them.
-      </p>`;
-      return;
-    }
-
-    if (initialState === null || initialState === undefined) {
-      document.getElementById("tmStatusDiv").style.borderColor = "red";
-      document.getElementById(
-        "tmStatus"
-      ).innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
-          Please select a start state.
-          </p>`;
-
-      return;
-    }
-    if (acceptState === null || acceptState === undefined) {
-      document.getElementById("tmStatusDiv").style.borderColor = "red";
-      document.getElementById(
-        "tmStatus"
-      ).innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
-          Please select an accept state.
-          </p>`;
-
-      return;
-    }
-    if (rejectState === null || rejectState === undefined) {
-      document.getElementById("tmStatusDiv").style.borderColor = "red";
-      document.getElementById(
-        "tmStatus"
-      ).innerHTML = `<p class="text-center text-red-600 text-lg font-semibold" id="tmStatus">
-          Please select a reject state.
-          </p>`;
-      return;
-    }
-
-    //Reset the status div
-    document.getElementById("tmStatus").innerHTML = "";
-    document.getElementById("tmStatusDiv").style.borderColor = "#FAF0E6";
-
-    var initState = initialState;
-    var finalStates = [acceptState, rejectState];
-    var transitions = transitionFunction;
-
-    var speed = document.getElementById("speed").value;
-
-    var tm = new TuringMachine(
-      input,
-      initState,
-      transitions,
-      finalStates,
-      speed
-    );
-
-    tm.run();
-
-    var stopTm = document.getElementById("tmhalt");
-
-    //Add a halt button to stop the turing machine
-    document.getElementById("tmhalt").classList.remove("hidden");
-
-    //Add event listener to the halt button
-    stopTm.addEventListener("click", function () {
-      tm.halt(true);
-      tm.haltFlag = true;
-
-      // //Clear the tape
-      // RenderTape([], 0);
-
-      //Remove the halt button
-      document.getElementById("tmhalt").classList.add("hidden");
-    });
-  });
+  showMainControlPanel();
 
   /////Extra things end here////
 
@@ -2568,15 +2651,21 @@ But we dont need to delete the transitions stored in the edge's data because the
 
             if (edge.data("transitions")) {
               // Get all transitions for this edge
-              var transitions = edge.data("transitions").map((t) => {
+              var transitions = edge
+                .data("transitions")
+                .map((t) => {
                 var transitionId = sourceId + "," + t.currentSymbol;
                 var transition = transitionFunction[transitionId];
+                if (!transition) {
+                  return null;
+                }
                 return {
                   currentSymbol: t.currentSymbol,
                   nextSymbol: transition[1],
                   direction: transition[2],
                 };
-              });
+                })
+                .filter(Boolean);
 
               // Update the edge data with all transitions
               edge.data("transitions", transitions);
@@ -2600,13 +2689,13 @@ But we dont need to delete the transitions stored in the edge's data because the
           });
 
           if (initialState != null) {
-            makeStartState(cy.$("#" + initialState));
+            makeStartState_(cy.$("#" + initialState));
           }
           if (acceptState != null) {
-            makeAcceptState(cy.$("#" + acceptState));
+            makeAcceptState_(cy.$("#" + acceptState));
           }
           if (rejectState != null) {
-            makeRejectState(cy.$("#" + rejectState));
+            makeRejectState_(cy.$("#" + rejectState));
           }
 
           notifier.info("Turing machine imported successfully", {
